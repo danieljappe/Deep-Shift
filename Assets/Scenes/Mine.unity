@@ -151,8 +151,9 @@ MonoBehaviour:
   _gridWidth: 100
   _gridHeight: 100
   _tileSize: 1
-  _onOrePickedUp: {fileID: 11400000, guid: f589e6bed3cb8409981f33a49d6a83ed, type: 2}
+  _onOrePickedUp: {fileID: 0}
   _onTileDestroyed: {fileID: 11400000, guid: 4eddd0614819d46b88f993cefb94959e, type: 2}
+  _onHazardTriggered: {fileID: 0}
 --- !u!4 &280243976
 Transform:
   m_ObjectHideFlags: 0
@@ -365,7 +366,15 @@ MonoBehaviour:
   _useRandomSeed: 1
   _fixedSeed: 0
   _maxAttempts: 10
-  _intercomOffset: {x: 0, y: -5}
+  _floorDepth: 1
+  _gasTile: {fileID: 0}
+  _falseWallTile: {fileID: 0}
+  _oreChamberOreTiles: []
+  _intercomTerminalPrefab: {fileID: 0}
+  _hoistTerminalPrefab: {fileID: 0}
+  _enemyNestMarkerPrefab: {fileID: 0}
+  _supplyCacheMarkerPrefab: {fileID: 0}
+  _blackMarketMarkerPrefab: {fileID: 0}
 --- !u!4 &1036142278
 Transform:
   m_ObjectHideFlags: 0
@@ -428,6 +437,10 @@ MonoBehaviour:
   _drillPower: 1
   _mineGrid: {fileID: 280243975}
   _maxHealth: 100
+  _interactRadius: 1.2
+  _interactableLayers:
+    serializedVersion: 2
+    m_Bits: 64
   _onPlayerHealthChanged: {fileID: 11400000, guid: 9286e32ed3c644ef39fb6500c20aae66, type: 2}
   _onPlayerDied: {fileID: 11400000, guid: 522909d3e4546481c9723f63d913c56b, type: 2}
 --- !u!4 &1778964068

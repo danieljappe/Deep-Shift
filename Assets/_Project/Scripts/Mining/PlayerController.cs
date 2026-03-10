@@ -19,6 +19,10 @@ namespace DeepShift.Mining
         [Header("Health")]
         [SerializeField] private int _maxHealth = 100;
 
+        [Header("Interact")]
+        [SerializeField] private float     _interactRadius    = 1.2f;
+        [SerializeField] private LayerMask _interactableLayers;
+
         [Header("Event Channels")]
         [SerializeField] private GameEventSO_Float _onPlayerHealthChanged;
         [SerializeField] private GameEventSO       _onPlayerDied;
@@ -39,6 +43,7 @@ namespace DeepShift.Mining
         // Input System actions — resolved once in Awake
         private InputAction _moveAction;
         private InputAction _drillAction;
+        private InputAction _interactAction;
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -60,14 +65,20 @@ namespace DeepShift.Mining
             _drillAction.AddBinding("<Keyboard>/space");
             _drillAction.AddBinding("<Gamepad>/buttonSouth");
 
+            _interactAction = new InputAction("Interact", InputActionType.Button);
+            _interactAction.AddBinding("<Keyboard>/e");
+            _interactAction.AddBinding("<Gamepad>/buttonWest");
+
             _moveAction.Enable();
             _drillAction.Enable();
+            _interactAction.Enable();
         }
 
         private void OnDestroy()
         {
             _moveAction.Disable();
             _drillAction.Disable();
+            _interactAction.Disable();
         }
 
         private void Start()
@@ -96,6 +107,7 @@ namespace DeepShift.Mining
             UpdateAim();
             BuildMovement();
             HandleDrill();
+            HandleInteract();
         }
 
         private void FixedUpdate()
@@ -210,6 +222,21 @@ namespace DeepShift.Mining
             return velocity;
         }
 
+        // ── Interact ──────────────────────────────────────────────────────────
+
+        private void HandleInteract()
+        {
+            if (!_interactAction.WasPressedThisFrame()) return;
+            var hits = Physics2D.OverlapCircleAll(transform.position, _interactRadius, _interactableLayers);
+            foreach (var hit in hits)
+            {
+                var interactable = hit.GetComponent<IInteractable>();
+                if (interactable == null) continue;
+                interactable.Interact();
+                return;
+            }
+        }
+
         // ── Drill ─────────────────────────────────────────────────────────────
 
         private void HandleDrill()
@@ -255,10 +282,6 @@ namespace DeepShift.Mining
         /// player movement: out-of-bounds cells, undestroyed rocks, and Wall tiles all block.
         /// Floor tiles and destroyed tiles are passable.
         /// </summary>
-        /// <remarks>
-        /// TODO: replace the tileName string check with a dedicated <c>isWalkable</c> bool
-        /// on <see cref="TileDataSO"/> once the data layer is iterated on.
-        /// </remarks>
         private bool IsSolid(int x, int y)
         {
             if (_mineGrid == null) return false;
@@ -271,8 +294,8 @@ namespace DeepShift.Mining
             // Destroyed tiles are open space
             if (tile.Value.isDestroyed) return false;
 
-            // Floor tiles are always walkable
-            if (tile.Value.data.tileName == "Floor") return false;
+            // Walkable tiles (Floor, GasPocket, etc.) are always passable
+            if (tile.Value.data.isWalkable) return false;
 
             // Everything else (rocks, walls) blocks
             return true;

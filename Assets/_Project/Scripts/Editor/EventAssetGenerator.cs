@@ -34,6 +34,7 @@ namespace DeepShift.Editor
             Create<GameEventSO_Float>("Hoist", "HoistCountdownTick");
             Create<GameEventSO>      ("Hoist", "HoistExtracted");
             Create<GameEventSO>      ("Hoist", "HoistCancelled");
+            Create<GameEventSO>      ("Hoist", "IntercomActivated");
 
             // Economy
             Create<GameEventSO_Int>  ("Economy", "OreCreditsChanged");

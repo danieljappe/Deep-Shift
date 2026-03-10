@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using DeepShift.Mining;
+using DeepShift.Hazards;
 
 namespace DeepShift.Editor
 {
@@ -17,6 +18,8 @@ namespace DeepShift.Editor
 
             GenerateOreAssets();
             GenerateTileAssets();
+            GenerateSpecialTileAssets();
+            UpdateTileWalkable("Floor.asset");
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -94,6 +97,53 @@ namespace DeepShift.Editor
 
             AssetDatabase.CreateAsset(tile, path);
             Debug.Log($"[DeepShift] Created tile: {assetName}");
+        }
+
+        // ── Special tiles ─────────────────────────────────────────────────────
+
+        private static void GenerateSpecialTileAssets()
+        {
+            EnsureFolder("Assets/_Project/ScriptableObjects", "Tiles");
+
+            // GasPocket
+            string gasPath = $"{TileRoot}/GasPocket.asset";
+            if (!Exists<GasTileDataSO>(gasPath))
+            {
+                var gas = ScriptableObject.CreateInstance<GasTileDataSO>();
+                gas.tileName          = "GasPocket";
+                gas.isDestructible    = false;
+                gas.drillHitsRequired = 0;
+                gas.isWalkable        = true;
+                gas.debugColor        = new Color(0.55f, 0.75f, 0.10f);
+                gas.gasDamage         = 10;
+                gas.gasCheckRadius    = 1;
+                AssetDatabase.CreateAsset(gas, gasPath);
+                Debug.Log("[DeepShift] Created tile: GasPocket");
+            }
+
+            // FalseWall
+            string fwPath = $"{TileRoot}/FalseWall.asset";
+            if (!Exists<FalseWallTileDataSO>(fwPath))
+            {
+                var fw = ScriptableObject.CreateInstance<FalseWallTileDataSO>();
+                fw.tileName          = "FalseWall";
+                fw.isDestructible    = true;
+                fw.drillHitsRequired = 2;
+                fw.debugColor        = new Color(0.30f, 0.30f, 0.30f);
+                AssetDatabase.CreateAsset(fw, fwPath);
+                Debug.Log("[DeepShift] Created tile: FalseWall");
+            }
+        }
+
+        private static void UpdateTileWalkable(string assetFileName)
+        {
+            string path  = $"{TileRoot}/{assetFileName}";
+            var    tile  = AssetDatabase.LoadAssetAtPath<TileDataSO>(path);
+            if (tile == null) { Debug.LogWarning($"[DeepShift] UpdateTileWalkable: could not load {path}"); return; }
+            if (tile.isWalkable) return;
+            tile.isWalkable = true;
+            EditorUtility.SetDirty(tile);
+            Debug.Log($"[DeepShift] Updated isWalkable on {assetFileName}");
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────

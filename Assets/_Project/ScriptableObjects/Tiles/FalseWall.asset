@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eeb1e37f5c54b4456a998580d1c31332, type: 3}
-  m_Name: Floor
-  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.TileDataSO
-  tileName: Floor
-  isDestructible: 0
-  drillHitsRequired: 0
+  m_Script: {fileID: 11500000, guid: 77b0e0960b20f4967a2182d3796d3d84, type: 3}
+  m_Name: FalseWall
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.FalseWallTileDataSO
+  tileName: FalseWall
+  isDestructible: 1
+  drillHitsRequired: 2
   containedOre: {fileID: 0}
   collapseRisk: 0
-  isWalkable: 1
-  debugColor: {r: 0.16470589, g: 0.16470589, b: 0.16470589, a: 1}
+  isWalkable: 0
+  debugColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}

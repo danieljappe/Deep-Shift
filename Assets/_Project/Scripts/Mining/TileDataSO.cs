@@ -24,6 +24,9 @@ namespace DeepShift.Mining
         [Range(0f, 1f)]
         public float collapseRisk;
 
+        /// <summary>True if the player can walk through this tile (e.g. Floor, GasPocket).</summary>
+        public bool isWalkable;
+
         /// <summary>Solid colour used to tint this tile during prototyping before final sprites are in place.</summary>
         public Color debugColor;
     }

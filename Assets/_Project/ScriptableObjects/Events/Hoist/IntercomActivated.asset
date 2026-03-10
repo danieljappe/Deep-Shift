@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aaea7798f95254006b3e8841836609c8, type: 3}
-  m_Name: HazardTriggered
+  m_Name: IntercomActivated
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Core.GameEventSO

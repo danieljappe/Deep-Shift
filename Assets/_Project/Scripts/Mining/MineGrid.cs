@@ -1,5 +1,6 @@
 using UnityEngine;
 using DeepShift.Core;
+using DeepShift.Hazards;
 
 namespace DeepShift.Mining
 {
@@ -15,6 +16,7 @@ namespace DeepShift.Mining
         [Header("Event Channels")]
         [SerializeField] private GameEventSO_Int _onOrePickedUp;
         [SerializeField] private GameEventSO     _onTileDestroyed;
+        [SerializeField] private GameEventSO     _onHazardTriggered;
 
         // ── Internal state ────────────────────────────────────────────────────
 
@@ -116,6 +118,21 @@ namespace DeepShift.Mining
                 _onOrePickedUp?.Raise(_grid[x, y].data.containedOre.creditValue);
 
             _onTileDestroyed?.Raise();
+            CheckAdjacentGas(x, y);
+        }
+
+        private void CheckAdjacentGas(int x, int y)
+        {
+            for (int dx = -1; dx <= 1; dx++)
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                if (dx == 0 && dy == 0) continue;
+                int nx = x + dx, ny = y + dy;
+                if (!InBounds(nx, ny)) continue;
+                if (_grid[nx, ny].isDestroyed) continue;
+                if (_grid[nx, ny].data is GasTileDataSO)
+                { _onHazardTriggered?.Raise(); return; }
+            }
         }
 
         /// <summary>
