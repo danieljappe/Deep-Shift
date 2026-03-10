@@ -148,8 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fba4a5ad9a80047228bb12c0ead2048c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.MineGrid
-  _gridWidth: 20
-  _gridHeight: 15
+  _gridWidth: 100
+  _gridHeight: 100
   _tileSize: 1
   _onOrePickedUp: {fileID: 11400000, guid: f589e6bed3cb8409981f33a49d6a83ed, type: 2}
   _onTileDestroyed: {fileID: 11400000, guid: 4eddd0614819d46b88f993cefb94959e, type: 2}
@@ -180,6 +180,7 @@ GameObject:
   - component: {fileID: 294686322}
   - component: {fileID: 294686321}
   - component: {fileID: 294686324}
+  - component: {fileID: 294686325}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -230,7 +231,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 50
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -305,6 +306,20 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &294686325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294686320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ab0228f8d98945b3b180499fb93094b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Camera.CameraFollow
+  _target: {fileID: 1778964068}
+  _smoothSpeed: 8
 --- !u!1 &1036142276
 GameObject:
   m_ObjectHideFlags: 0
@@ -337,6 +352,7 @@ MonoBehaviour:
   _mineGrid: {fileID: 280243975}
   _defaultRockTile: {fileID: 11400000, guid: b198d0f5b99a84d7c851c229a90bc5b7, type: 2}
   _wallTile: {fileID: 11400000, guid: 9c9bfd4dcb39449ed9ecb70ca116b8d5, type: 2}
+  _floorTile: {fileID: 11400000, guid: d3c9911c2d0f24d31b7e4ef6431953be, type: 2}
   _oreRockTiles:
   - {fileID: 11400000, guid: 14b14f313176543c7b864bb7a097d721, type: 2}
   - {fileID: 11400000, guid: 144c184f6f6934d469be9dc6ba41dbe3, type: 2}
@@ -344,6 +360,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 369df2102cf094d4daed29b7a31a12a9, type: 2}
   - {fileID: 11400000, guid: 19674136ef68841148644f524cbd5f53, type: 2}
   _oreSpawnChance: 0.1
+  _fillChance: 0.6
+  _smoothPasses: 6
+  _useRandomSeed: 1
+  _fixedSeed: 0
+  _maxAttempts: 10
+  _intercomOffset: {x: 0, y: -5}
 --- !u!4 &1036142278
 Transform:
   m_ObjectHideFlags: 0

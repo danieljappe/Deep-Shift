@@ -25,9 +25,10 @@ namespace DeepShift.Mining
 
         // ── Private state ─────────────────────────────────────────────────────
 
-        private Vector2    _lastMoveDirection  = Vector2.down;
-        private float      _drillCooldownTimer = 0f;
+        private Vector2     _aimDirection       = Vector2.down;
+        private float       _drillCooldownTimer = 0f;
         private Rigidbody2D _rb;
+        private UnityEngine.Camera _camera;
 
         private int _currentHealth;
         private bool _isDead;
@@ -72,7 +73,8 @@ namespace DeepShift.Mining
         private void Start()
         {
             // Moved from Awake so PlayerSetup.Awake() has already run AddComponent<Rigidbody2D>()
-            _rb = GetComponent<Rigidbody2D>();
+            _rb     = GetComponent<Rigidbody2D>();
+            _camera = UnityEngine.Camera.main;
 
             if (_mineGrid == null) return;
 
@@ -91,6 +93,7 @@ namespace DeepShift.Mining
 
             _drillCooldownTimer -= Time.deltaTime;
 
+            UpdateAim();
             BuildMovement();
             HandleDrill();
         }
@@ -102,6 +105,12 @@ namespace DeepShift.Mining
         }
 
         // ── Public API ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Normalised world-space direction from the player to the mouse cursor,
+        /// snapped to the nearest of 8 grid directions. Read by tools (drill, etc.).
+        /// </summary>
+        public Vector2 AimDirection => _aimDirection;
 
         /// <summary>
         /// Applies <paramref name="amount"/> damage to the player.
@@ -131,14 +140,40 @@ namespace DeepShift.Mining
             _onPlayerHealthChanged?.Raise((float)_currentHealth / _maxHealth);
         }
 
+        // ── Aim ───────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Reads the mouse world position, rotates the player to face it, and updates
+        /// <see cref="_aimDirection"/> snapped to the nearest of 8 grid directions.
+        /// Convention: sprite art should face +Y (up); the -90° offset aligns Atan2's
+        /// +X-is-zero reference with that convention.
+        /// </summary>
+        private void UpdateAim()
+        {
+            if (_camera == null || Mouse.current == null) return;
+
+            Vector2 mouseScreen = Mouse.current.position.ReadValue();
+            Vector3 mouseWorld  = _camera.ScreenToWorldPoint(
+                new Vector3(mouseScreen.x, mouseScreen.y, -_camera.transform.position.z));
+
+            Vector2 toMouse = (Vector2)mouseWorld - (Vector2)transform.position;
+            if (toMouse.sqrMagnitude < 0.001f) return;
+
+            // Rotate player sprite to face mouse (sprite art assumed to face +Y)
+            float angle = Mathf.Atan2(toMouse.y, toMouse.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle - 90f);
+
+            // Snap normalised direction to nearest of 8 grid directions
+            _aimDirection = new Vector2(
+                Mathf.RoundToInt(toMouse.normalized.x),
+                Mathf.RoundToInt(toMouse.normalized.y)).normalized;
+        }
+
         // ── Movement ──────────────────────────────────────────────────────────
 
         private void BuildMovement()
         {
             var input = _moveAction.ReadValue<Vector2>();
-
-            if (input.sqrMagnitude > 0f)
-                _lastMoveDirection = input.normalized;
 
             Vector2 velocity = input * _moveSpeed;
 
@@ -186,8 +221,8 @@ namespace DeepShift.Mining
 
             Vector2Int cell = _mineGrid.WorldToGrid(transform.position);
             Vector2Int dir  = new Vector2Int(
-                Mathf.RoundToInt(_lastMoveDirection.x),
-                Mathf.RoundToInt(_lastMoveDirection.y)
+                Mathf.RoundToInt(_aimDirection.x),
+                Mathf.RoundToInt(_aimDirection.y)
             );
 
             int tx = cell.x + dir.x;
