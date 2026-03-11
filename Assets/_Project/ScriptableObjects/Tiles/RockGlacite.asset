@@ -15,6 +15,7 @@ MonoBehaviour:
   tileName: Glacite Rock
   isDestructible: 1
   drillHitsRequired: 3
-  containedOre: {fileID: 0}
+  containedOre: {fileID: 11400000, guid: 6cb6b88984ae94ac0a06a64b4d2879fa, type: 2}
   collapseRisk: 0.1
+  isWalkable: 0
   debugColor: {r: 0, g: 1, b: 1, a: 1}

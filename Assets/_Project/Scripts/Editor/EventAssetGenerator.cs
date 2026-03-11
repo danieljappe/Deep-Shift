@@ -17,6 +17,7 @@ namespace DeepShift.Editor
             EnsureFolder(EventsRoot, "Economy");
             EnsureFolder(EventsRoot, "ORION");
             EnsureFolder(EventsRoot, "Shift");
+            EnsureFolder(EventsRoot, "Enemies");
 
             // Player
             Create<GameEventSO>      ("Player", "PlayerDied");
@@ -24,7 +25,7 @@ namespace DeepShift.Editor
             Create<GameEventSO_Int>  ("Player", "PlayerFloorChanged");
 
             // Mining
-            Create<GameEventSO>      ("Mining", "OrePickedUp");
+            Create<GameEventSO_Int>  ("Mining", "OrePickedUp");
             Create<GameEventSO>      ("Mining", "TileDestroyed");
             Create<GameEventSO>      ("Mining", "OreVeinDiscovered");
             Create<GameEventSO>      ("Mining", "HazardTriggered");
@@ -46,9 +47,13 @@ namespace DeepShift.Editor
             Create<GameEventSO_String>("ORION", "ORIONDialogueTrigger");
             Create<GameEventSO_Bool>  ("ORION", "ORIONPriorityOverride");
 
+            // Enemies
+            Create<GameEventSO>("Enemies", "EnemyAlerted");
+
             // Shift
             Create<GameEventSO>("Shift", "ShiftStarted");
             Create<GameEventSO>("Shift", "ShiftEnded");
+            Create<GameEventSO>("Shift", "FloorGenerated");
             Create<GameEventSO>("Shift", "ContractCompleted");
 
             AssetDatabase.SaveAssets();

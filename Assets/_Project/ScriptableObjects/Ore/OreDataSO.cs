@@ -17,5 +17,8 @@ namespace DeepShift.Mining
 
         /// <summary>Representative colour used for prototype tilemap tinting and UI icons.</summary>
         public Color tileColor;
+
+        /// <summary>Optional sprite used for the world ore pickup. Falls back to a coloured square if null.</summary>
+        public Sprite sprite;
     }
 }

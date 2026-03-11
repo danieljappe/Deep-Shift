@@ -11,6 +11,10 @@ namespace DeepShift.Mining
     {
         private void Awake()
         {
+            // ── Inventory ─────────────────────────────────────────────────────
+            if (GetComponent<PlayerInventory>() == null)
+                gameObject.AddComponent<PlayerInventory>();
+
             // ── Rigidbody2D ───────────────────────────────────────────────────
             var rb              = gameObject.AddComponent<Rigidbody2D>();
             rb.gravityScale     = 0f;  // top-down — no gravity

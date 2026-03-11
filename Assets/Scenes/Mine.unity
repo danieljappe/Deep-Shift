@@ -151,7 +151,6 @@ MonoBehaviour:
   _gridWidth: 100
   _gridHeight: 100
   _tileSize: 1
-  _onOrePickedUp: {fileID: 0}
   _onTileDestroyed: {fileID: 11400000, guid: 4eddd0614819d46b88f993cefb94959e, type: 2}
   _onHazardTriggered: {fileID: 0}
 --- !u!4 &280243976
@@ -232,7 +231,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 50
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -367,11 +366,13 @@ MonoBehaviour:
   _fixedSeed: 0
   _maxAttempts: 10
   _floorDepth: 1
-  _gasTile: {fileID: 0}
-  _falseWallTile: {fileID: 0}
-  _oreChamberOreTiles: []
-  _intercomTerminalPrefab: {fileID: 0}
-  _hoistTerminalPrefab: {fileID: 0}
+  _gasTile: {fileID: 11400000, guid: 63ce2ed8af8324f4887227d93f7818fd, type: 2}
+  _falseWallTile: {fileID: 11400000, guid: cfffa51fa28db4af5964611f3fdec1af, type: 2}
+  _oreChamberOreTiles:
+  - {fileID: 11400000, guid: 14b14f313176543c7b864bb7a097d721, type: 2}
+  - {fileID: 11400000, guid: 144c184f6f6934d469be9dc6ba41dbe3, type: 2}
+  _intercomTerminalPrefab: {fileID: 6989255900721737697, guid: 9db17a1e526814292bbf0cbc24b4e9ab, type: 3}
+  _hoistTerminalPrefab: {fileID: 4604740676496037082, guid: 6b972b6c3e4b44ac6ba8695c9ba82b86, type: 3}
   _enemyNestMarkerPrefab: {fileID: 0}
   _supplyCacheMarkerPrefab: {fileID: 0}
   _blackMarketMarkerPrefab: {fileID: 0}
@@ -401,6 +402,8 @@ GameObject:
   - component: {fileID: 1778964068}
   - component: {fileID: 1778964067}
   - component: {fileID: 1778964066}
+  - component: {fileID: 1778964070}
+  - component: {fileID: 1778964069}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -433,8 +436,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.PlayerController
   _moveSpeed: 5
-  _drillCooldown: 0.3
-  _drillPower: 1
   _mineGrid: {fileID: 280243975}
   _maxHealth: 100
   _interactRadius: 1.2
@@ -458,6 +459,78 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1778964069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778964065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b6f1c6ab2ba2453bbe817c369f492f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.PlayerInventory
+--- !u!114 &1778964070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778964065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e02bed7980a44ca89de1ac331d3f8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.DrillController
+  _chargeTime: 0.8
+  _mineGrid: {fileID: 280243975}
+  _onOrePickedUp: {fileID: 11400000, guid: f589e6bed3cb8409981f33a49d6a83ed, type: 2}
+--- !u!1 &2136319198
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2136319200}
+  - component: {fileID: 2136319199}
+  m_Layer: 0
+  m_Name: OreHUD
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2136319199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136319198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c1105e5da6994594b37ff1c61b7359e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.UI.OreHUD
+  _inventory: {fileID: 1778964069}
+--- !u!4 &2136319200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136319198}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -466,3 +539,4 @@ SceneRoots:
   - {fileID: 280243976}
   - {fileID: 1778964068}
   - {fileID: 1036142278}
+  - {fileID: 2136319200}

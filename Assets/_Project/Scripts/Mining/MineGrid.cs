@@ -14,9 +14,8 @@ namespace DeepShift.Mining
         [SerializeField] private float _tileSize   = 1f;
 
         [Header("Event Channels")]
-        [SerializeField] private GameEventSO_Int _onOrePickedUp;
-        [SerializeField] private GameEventSO     _onTileDestroyed;
-        [SerializeField] private GameEventSO     _onHazardTriggered;
+        [SerializeField] private GameEventSO _onTileDestroyed;
+        [SerializeField] private GameEventSO _onHazardTriggered;
 
         // ── Internal state ────────────────────────────────────────────────────
 
@@ -101,8 +100,8 @@ namespace DeepShift.Mining
 
         /// <summary>
         /// Immediately destroys the tile at (<paramref name="x"/>, <paramref name="y"/>):
-        /// disables its visual, raises <see cref="_onTileDestroyed"/>, and — if the tile
-        /// contained ore — raises <see cref="_onOrePickedUp"/> with the ore's credit value.
+        /// disables its visual, raises <see cref="_onTileDestroyed"/>, and checks for adjacent gas.
+        /// Ore collection is handled by the <see cref="OrePickup"/> spawned by <see cref="DrillController"/>.
         /// </summary>
         public void DestroyTile(int x, int y)
         {
@@ -113,9 +112,6 @@ namespace DeepShift.Mining
 
             if (_grid[x, y].visualObject != null)
                 _grid[x, y].visualObject.SetActive(false);
-
-            if (_grid[x, y].data.containedOre != null)
-                _onOrePickedUp?.Raise(_grid[x, y].data.containedOre.creditValue);
 
             _onTileDestroyed?.Raise();
             CheckAdjacentGas(x, y);

@@ -15,6 +15,7 @@ MonoBehaviour:
   tileName: Echovein Rock
   isDestructible: 1
   drillHitsRequired: 5
-  containedOre: {fileID: 0}
+  containedOre: {fileID: 11400000, guid: 43f57af077c3a4f2abfd42487a5f23b9, type: 2}
   collapseRisk: 0.2
+  isWalkable: 0
   debugColor: {r: 1, g: 0.84313726, b: 0, a: 1}

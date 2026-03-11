@@ -15,6 +15,7 @@ MonoBehaviour:
   tileName: Silicate Rock
   isDestructible: 1
   drillHitsRequired: 2
-  containedOre: {fileID: 0}
+  containedOre: {fileID: 11400000, guid: 9b431b57724904081996c66e7fac205f, type: 2}
   collapseRisk: 0.05
+  isWalkable: 0
   debugColor: {r: 0.6784314, g: 0.84705883, b: 0.9019608, a: 1}

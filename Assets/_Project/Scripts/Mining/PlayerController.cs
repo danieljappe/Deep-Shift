@@ -11,9 +11,7 @@ namespace DeepShift.Mining
         [Header("Movement")]
         [SerializeField] private float _moveSpeed     = 5f;
 
-        [Header("Drill")]
-        [SerializeField] private float _drillCooldown = 0.3f;
-        [SerializeField] private int   _drillPower    = 1;
+        [Header("Movement / Grid")]
         [SerializeField] private MineGrid _mineGrid;
 
         [Header("Health")]
@@ -29,8 +27,7 @@ namespace DeepShift.Mining
 
         // ── Private state ─────────────────────────────────────────────────────
 
-        private Vector2     _aimDirection       = Vector2.down;
-        private float       _drillCooldownTimer = 0f;
+        private Vector2     _aimDirection = Vector2.down;
         private Rigidbody2D _rb;
         private UnityEngine.Camera _camera;
 
@@ -42,7 +39,6 @@ namespace DeepShift.Mining
 
         // Input System actions — resolved once in Awake
         private InputAction _moveAction;
-        private InputAction _drillAction;
         private InputAction _interactAction;
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
@@ -61,23 +57,17 @@ namespace DeepShift.Mining
                 .With("Left",  "<Keyboard>/a").With("Left",  "<Keyboard>/leftArrow")
                 .With("Right", "<Keyboard>/d").With("Right", "<Keyboard>/rightArrow");
 
-            _drillAction = new InputAction("Drill", InputActionType.Button);
-            _drillAction.AddBinding("<Keyboard>/space");
-            _drillAction.AddBinding("<Gamepad>/buttonSouth");
-
             _interactAction = new InputAction("Interact", InputActionType.Button);
             _interactAction.AddBinding("<Keyboard>/e");
             _interactAction.AddBinding("<Gamepad>/buttonWest");
 
             _moveAction.Enable();
-            _drillAction.Enable();
             _interactAction.Enable();
         }
 
         private void OnDestroy()
         {
             _moveAction.Disable();
-            _drillAction.Disable();
             _interactAction.Disable();
         }
 
@@ -102,11 +92,8 @@ namespace DeepShift.Mining
         {
             if (_isDead) return;
 
-            _drillCooldownTimer -= Time.deltaTime;
-
             UpdateAim();
             BuildMovement();
-            HandleDrill();
             HandleInteract();
         }
 
@@ -234,34 +221,6 @@ namespace DeepShift.Mining
                 if (interactable == null) continue;
                 interactable.Interact();
                 return;
-            }
-        }
-
-        // ── Drill ─────────────────────────────────────────────────────────────
-
-        private void HandleDrill()
-        {
-            bool drillInput = _drillAction.IsPressed();
-            if (!drillInput || _drillCooldownTimer > 0f || _mineGrid == null) return;
-
-            _drillCooldownTimer = _drillCooldown;
-
-            Vector2Int cell = _mineGrid.WorldToGrid(transform.position);
-            Vector2Int dir  = new Vector2Int(
-                Mathf.RoundToInt(_aimDirection.x),
-                Mathf.RoundToInt(_aimDirection.y)
-            );
-
-            int tx = cell.x + dir.x;
-            int ty = cell.y + dir.y;
-
-            MineGrid.TileInstance? target = _mineGrid.GetTile(tx, ty);
-            if (target == null || !target.Value.data.isDestructible) return;
-
-            for (int i = 0; i < _drillPower; i++)
-            {
-                bool destroyed = _mineGrid.HitTile(tx, ty);
-                if (destroyed) break; // tile gone, further hits are wasted
             }
         }
 

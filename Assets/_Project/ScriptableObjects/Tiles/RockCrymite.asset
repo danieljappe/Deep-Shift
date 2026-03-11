@@ -15,6 +15,7 @@ MonoBehaviour:
   tileName: Crymite Rock
   isDestructible: 1
   drillHitsRequired: 4
-  containedOre: {fileID: 0}
+  containedOre: {fileID: 11400000, guid: a016d9ce35eec4d3d9ca71f6fd26bfe0, type: 2}
   collapseRisk: 0.15
+  isWalkable: 0
   debugColor: {r: 0, g: 0, b: 0.54509807, a: 1}
