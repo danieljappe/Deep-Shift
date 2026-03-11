@@ -33,7 +33,8 @@ namespace DeepShift.Enemies
     /// </summary>
     public class BorerController : MonoBehaviour,
         IGameEventListener<Vector2Int>,   // DrillImpact
-        IGameEventListener                // HoistCalled
+        IGameEventListener,               // HoistCalled
+        IDamageable
     {
         // ── Inspector fields ──────────────────────────────────────────────────
 

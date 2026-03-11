@@ -14,7 +14,9 @@ namespace DeepShift.Mining
     public class DrillController : MonoBehaviour
     {
         [Header("Drill Settings")]
-        [SerializeField] private float _chargeTime = 0.8f;
+        [SerializeField] private float _chargeTime   = 0.8f;
+        /// <summary>Damage dealt to an <see cref="IDamageable"/> enemy per full drill charge.</summary>
+        [SerializeField] private int   _drillDamage  = 1;
 
         [Header("References")]
         [SerializeField] private MineGrid _mineGrid;
@@ -65,19 +67,22 @@ namespace DeepShift.Mining
             int ty = cell.y + dir.y;
 
             MineGrid.TileInstance? target = _mineGrid.GetTile(tx, ty);
-            bool canDrill = target.HasValue
-                         && !target.Value.isDestroyed
-                         && target.Value.data != null
-                         && target.Value.data.isDestructible;
+            bool canDrillTile = target.HasValue
+                             && !target.Value.isDestroyed
+                             && target.Value.data != null
+                             && target.Value.data.isDestructible;
 
-            if (_drillAction.IsPressed() && canDrill)
+            IDamageable enemyTarget = GetEnemyAt(_mineGrid.GridToWorld(tx, ty));
+            bool canAct = canDrillTile || enemyTarget != null;
+
+            if (_drillAction.IsPressed() && canAct)
             {
                 _chargeProgress += Time.deltaTime;
                 SetIndicator(tx, ty, _chargeProgress / _chargeTime);
 
                 if (_chargeProgress >= _chargeTime)
                 {
-                    ExecuteDrill(tx, ty);
+                    ExecuteDrill(tx, ty, canDrillTile, enemyTarget);
                     _chargeProgress = 0f;
                     HideIndicator();
                 }
@@ -91,16 +96,38 @@ namespace DeepShift.Mining
 
         // ── Drill execution ────────────────────────────────────────────────────
 
-        private void ExecuteDrill(int tx, int ty)
+        private void ExecuteDrill(int tx, int ty, bool drillTile, IDamageable enemy)
         {
-            MineGrid.TileInstance? before = _mineGrid.GetTile(tx, ty);
-            if (!before.HasValue) return;
+            if (drillTile)
+            {
+                MineGrid.TileInstance? before = _mineGrid.GetTile(tx, ty);
+                if (before.HasValue)
+                {
+                    OreDataSO ore       = before.Value.data.containedOre;
+                    bool      destroyed = _mineGrid.HitTile(tx, ty);
 
-            OreDataSO ore       = before.Value.data.containedOre;
-            bool      destroyed = _mineGrid.HitTile(tx, ty);
+                    if (destroyed && ore != null)
+                        SpawnOrePickup(_mineGrid.GridToWorld(tx, ty), ore);
+                }
+            }
 
-            if (destroyed && ore != null)
-                SpawnOrePickup(_mineGrid.GridToWorld(tx, ty), ore);
+            enemy?.TakeDamage(_drillDamage);
+        }
+
+        /// <summary>
+        /// Returns the first <see cref="IDamageable"/> found within half a tile of
+        /// <paramref name="worldPos"/>, or <c>null</c> if none is present.
+        /// Uses a small overlap circle so enemies slightly off-centre are still hittable.
+        /// </summary>
+        private static IDamageable GetEnemyAt(Vector3 worldPos)
+        {
+            var hits = Physics2D.OverlapCircleAll(worldPos, 0.4f);
+            foreach (var hit in hits)
+            {
+                var damageable = hit.GetComponent<IDamageable>();
+                if (damageable != null) return damageable;
+            }
+            return null;
         }
 
         private void SpawnOrePickup(Vector3 worldPos, OreDataSO ore)
