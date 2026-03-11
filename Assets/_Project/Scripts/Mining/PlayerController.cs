@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DeepShift.Core;
+using DeepShift.Player;
 
 namespace DeepShift.Mining
 {
@@ -14,16 +15,9 @@ namespace DeepShift.Mining
         [Header("Movement / Grid")]
         [SerializeField] private MineGrid _mineGrid;
 
-        [Header("Health")]
-        [SerializeField] private int _maxHealth = 100;
-
         [Header("Interact")]
         [SerializeField] private float     _interactRadius    = 1.2f;
         [SerializeField] private LayerMask _interactableLayers;
-
-        [Header("Event Channels")]
-        [SerializeField] private GameEventSO_Float _onPlayerHealthChanged;
-        [SerializeField] private GameEventSO       _onPlayerDied;
 
         // ── Private state ─────────────────────────────────────────────────────
 
@@ -31,8 +25,7 @@ namespace DeepShift.Mining
         private Rigidbody2D _rb;
         private UnityEngine.Camera _camera;
 
-        private int _currentHealth;
-        private bool _isDead;
+        private PlayerHealthSystem _health;
 
         // Buffered each Update, applied in FixedUpdate
         private Vector2 _pendingVelocity;
@@ -45,8 +38,6 @@ namespace DeepShift.Mining
 
         private void Awake()
         {
-            _currentHealth = _maxHealth;
-
             // Build lightweight ad-hoc actions so no Input Action Asset is required yet.
             // TODO: replace with a proper InputActionAsset / PlayerInput component in Phase 2.
             _moveAction = new InputAction("Move", InputActionType.Value,
@@ -76,6 +67,7 @@ namespace DeepShift.Mining
             // Moved from Awake so PlayerSetup.Awake() has already run AddComponent<Rigidbody2D>()
             _rb     = GetComponent<Rigidbody2D>();
             _camera = UnityEngine.Camera.main;
+            _health = GetComponent<PlayerHealthSystem>();
 
             if (_mineGrid == null) return;
 
@@ -90,7 +82,7 @@ namespace DeepShift.Mining
 
         private void Update()
         {
-            if (_isDead) return;
+            if (_health != null && _health.IsDead) return;
 
             UpdateAim();
             BuildMovement();
@@ -99,7 +91,7 @@ namespace DeepShift.Mining
 
         private void FixedUpdate()
         {
-            if (_isDead) return;
+            if (_health != null && _health.IsDead) return;
             _rb.MovePosition(_rb.position + _pendingVelocity * Time.fixedDeltaTime);
         }
 
@@ -110,34 +102,6 @@ namespace DeepShift.Mining
         /// snapped to the nearest of 8 grid directions. Read by tools (drill, etc.).
         /// </summary>
         public Vector2 AimDirection => _aimDirection;
-
-        /// <summary>
-        /// Applies <paramref name="amount"/> damage to the player.
-        /// Raises <see cref="_onPlayerHealthChanged"/> with the new health ratio (0–1).
-        /// Raises <see cref="_onPlayerDied"/> and disables input if health reaches zero.
-        /// </summary>
-        public void TakeDamage(int amount)
-        {
-            if (_isDead) return;
-
-            _currentHealth = Mathf.Max(0, _currentHealth - amount);
-            _onPlayerHealthChanged?.Raise((float)_currentHealth / _maxHealth);
-
-            if (_currentHealth <= 0)
-                Die();
-        }
-
-        /// <summary>
-        /// Restores <paramref name="amount"/> health, clamped to <see cref="_maxHealth"/>.
-        /// Raises <see cref="_onPlayerHealthChanged"/> with the updated ratio.
-        /// </summary>
-        public void Heal(int amount)
-        {
-            if (_isDead) return;
-
-            _currentHealth = Mathf.Min(_maxHealth, _currentHealth + amount);
-            _onPlayerHealthChanged?.Raise((float)_currentHealth / _maxHealth);
-        }
 
         // ── Aim ───────────────────────────────────────────────────────────────
 
@@ -222,16 +186,6 @@ namespace DeepShift.Mining
                 interactable.Interact();
                 return;
             }
-        }
-
-        // ── Health ────────────────────────────────────────────────────────────
-
-        private void Die()
-        {
-            _isDead        = true;
-            _pendingVelocity = Vector2.zero;
-            _onPlayerDied?.Raise();
-            Debug.Log("[PlayerController] Player died.");
         }
 
         // ── Public movement API ───────────────────────────────────────────────

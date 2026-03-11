@@ -51,6 +51,7 @@ namespace DeepShift.Mining
 
         [Header("Event Channels — Subscribe")]
         [SerializeField] private GameEventSO _onHoistExtracted;
+        [SerializeField] private GameEventSO _onShiftStarted;
 
         [Header("Event Channels — Raise")]
         [SerializeField] private GameEventSO_Int _onPlayerFloorChanged;
@@ -63,10 +64,24 @@ namespace DeepShift.Mining
         /// <summary>Tracks terminal/marker GameObjects spawned per floor so they can be cleared on regeneration.</summary>
         private readonly List<GameObject> _spawnedTerminals = new();
 
+        // Separate IGameEventListener for ShiftStarted — avoids interface collision with OnEventRaised()
+        private RestartListener _restartListener;
+
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
-        private void OnEnable()  => _onHoistExtracted?.RegisterListener(this);
-        private void OnDisable() => _onHoistExtracted?.UnregisterListener(this);
+        private void Awake() => _restartListener = new RestartListener(this);
+
+        private void OnEnable()
+        {
+            _onHoistExtracted?.RegisterListener(this);
+            _onShiftStarted?.RegisterListener(_restartListener);
+        }
+
+        private void OnDisable()
+        {
+            _onHoistExtracted?.UnregisterListener(this);
+            _onShiftStarted?.UnregisterListener(_restartListener);
+        }
 
         private void Start()
         {
@@ -93,30 +108,48 @@ namespace DeepShift.Mining
         // ── Floor generation ───────────────────────────────────────────────────
 
         /// <summary>
-        /// Clears all floor-scoped objects (spawned terminals, pickups, floating text),
-        /// increments the floor depth, regenerates the cave and rooms, teleports the player
-        /// to the new spawn, and raises <see cref="_onPlayerFloorChanged"/>.
+        /// Clears all floor-scoped objects, increments the floor depth, regenerates the cave
+        /// and rooms, and teleports the player to the new spawn.
+        /// Called when <see cref="_onHoistExtracted"/> fires.
         /// </summary>
         private void RegenerateFloor()
         {
-            // Destroy spawned terminal/marker GameObjects from the previous floor
+            CleanupFloorObjects();
+            _floorDepth++;
+            DoFloorTransition();
+        }
+
+        /// <summary>
+        /// Clears all floor-scoped objects, resets the floor depth to 1, regenerates the cave
+        /// and rooms, and teleports the player to the spawn.
+        /// Called when <see cref="_onShiftStarted"/> fires (i.e. player clicked "Begin New Shift").
+        /// </summary>
+        public void RestartFromFloor1()
+        {
+            CleanupFloorObjects();
+            _floorDepth = 1;
+            DoFloorTransition();
+        }
+
+        /// <summary>Destroys all floor-scoped GameObjects: spawned terminals, ore pickups, and floating text.</summary>
+        private void CleanupFloorObjects()
+        {
             foreach (var go in _spawnedTerminals)
-            {
                 if (go != null) Destroy(go);
-            }
             _spawnedTerminals.Clear();
 
-            // Destroy any remaining ore pickups and floating text
             foreach (var pickup in FindObjectsByType<OrePickup>(FindObjectsSortMode.None))
                 Destroy(pickup.gameObject);
 
             foreach (var text in FindObjectsByType<DeepShift.UI.FloatingText>(FindObjectsSortMode.None))
                 Destroy(text.gameObject);
+        }
 
-            _floorDepth++;
+        /// <summary>Generates the floor, teleports the player, and raises <see cref="_onPlayerFloorChanged"/>.</summary>
+        private void DoFloorTransition()
+        {
             GenerateFloor();
 
-            // Teleport the player to the new spawn position
             var player = FindFirstObjectByType<PlayerController>();
             if (player != null)
                 player.TeleportTo(GetSpawnPosition());
@@ -125,7 +158,6 @@ namespace DeepShift.Mining
             Debug.Log($"[MineTestBootstrap] DESCENDING — Floor {_floorDepth}");
 
             // TODO: When the run ends (death or surface extraction), transition to Surface Camp.
-            // Debug.Log("Run ended — transition to Surface Camp here");
         }
 
         /// <summary>
@@ -346,5 +378,18 @@ namespace DeepShift.Mining
 
         private static bool IsNearSpawn(int x, int y, Vector2Int spawn) =>
             Mathf.Abs(x - spawn.x) <= 1 && Mathf.Abs(y - spawn.y) <= 1;
+
+        // ── Inner listener ─────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Bridges the ShiftStarted event to <see cref="RestartFromFloor1"/> without
+        /// conflicting with the IGameEventListener implementation used by HoistExtracted.
+        /// </summary>
+        private sealed class RestartListener : IGameEventListener
+        {
+            private readonly MineTestBootstrap _owner;
+            public RestartListener(MineTestBootstrap owner) => _owner = owner;
+            public void OnEventRaised() => _owner.RestartFromFloor1();
+        }
     }
 }

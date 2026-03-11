@@ -26,6 +26,17 @@ namespace DeepShift.Mining
         }
 
         /// <summary>
+        /// Removes the last <paramref name="count"/> ore pieces from the inventory.
+        /// Clamped — will not remove more items than are currently carried.
+        /// </summary>
+        public void RemoveOre(int count)
+        {
+            int toRemove = Mathf.Min(count, _carriedOre.Count);
+            if (toRemove > 0)
+                _carriedOre.RemoveRange(_carriedOre.Count - toRemove, toRemove);
+        }
+
+        /// <summary>
         /// Empties the carried inventory.
         /// TODO: call on player death — all carried ore is lost (run state, not persistent).
         /// TODO: call on successful hoist extraction — after transferring credits to EconomyManager.
