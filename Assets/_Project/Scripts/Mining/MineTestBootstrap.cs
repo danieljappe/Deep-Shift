@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DeepShift.Core;
 using DeepShift.Hazards;
+using DeepShift.Enemies;
 
 namespace DeepShift.Mining
 {
@@ -48,6 +49,10 @@ namespace DeepShift.Mining
         [SerializeField] private GameObject _enemyNestMarkerPrefab;
         [SerializeField] private GameObject _supplyCacheMarkerPrefab;
         [SerializeField] private GameObject _blackMarketMarkerPrefab;
+
+        [Header("Enemy Spawning")]
+        /// <summary>Spawns enemies after each floor is generated using the threat budget system.</summary>
+        [SerializeField] private EnemySpawner _enemySpawner;
 
         [Header("Event Channels — Subscribe")]
         [SerializeField] private GameEventSO _onHoistExtracted;
@@ -131,9 +136,11 @@ namespace DeepShift.Mining
             DoFloorTransition();
         }
 
-        /// <summary>Destroys all floor-scoped GameObjects: spawned terminals, ore pickups, and floating text.</summary>
+        /// <summary>Destroys all floor-scoped GameObjects: enemies, spawned terminals, ore pickups, and floating text.</summary>
         private void CleanupFloorObjects()
         {
+            _enemySpawner?.ClearSpawnedEnemies();
+
             foreach (var go in _spawnedTerminals)
                 if (go != null) Destroy(go);
             _spawnedTerminals.Clear();
@@ -323,6 +330,13 @@ namespace DeepShift.Mining
                       $"spawn: {_placementResult.spawnCentre}, " +
                       $"intercom: {_placementResult.intercomCentre}, " +
                       $"hoist: {_placementResult.hoistCentre}");
+
+            // ── Enemy spawning ─────────────────────────────────────────────────
+            _enemySpawner?.SpawnEnemies(
+                _floorDepth,
+                _mineGrid,
+                _placementResult.spawnCentre,
+                _placementResult.hoistCentre);
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────

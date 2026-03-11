@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1bc5f0d30637432993e1f173549dfdc, type: 3}
+  m_Name: BorerData
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Enemies.BorerDataSO
+  hp: 3
+  damage: 5
+  moveSpeed: 4
+  lungeRange: 1.2
+  lungeCooldown: 0.8
+  alertDuration: 0.5
+  innerVibrationRadius: 3
+  outerVibrationRadius: 5
+  vibrationThreshold: 3
+  vibrationDecayInterval: 3
+  deAggroRadius: 5
+  deAggroDelay: 3
+  hoistSwarmRadius: 8
+  chitinShardDropChance: 0.15
+  threatBudgetCost: 1

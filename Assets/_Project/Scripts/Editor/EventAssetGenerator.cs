@@ -47,8 +47,13 @@ namespace DeepShift.Editor
             Create<GameEventSO_String>("ORION", "ORIONDialogueTrigger");
             Create<GameEventSO_Bool>  ("ORION", "ORIONPriorityOverride");
 
+            // Mining (positioned)
+            Create<GameEventSO_Vector2Int>("Mining", "DrillImpact");
+
             // Enemies
-            Create<GameEventSO>("Enemies", "EnemyAlerted");
+            Create<GameEventSO>    ("Enemies", "EnemyAlerted");
+            Create<GameEventSO_Int>("Enemies", "EnemyDealDamage");
+            Create<GameEventSO>    ("Enemies", "EnemyDied");
 
             // Shift
             Create<GameEventSO>("Shift", "ShiftStarted");

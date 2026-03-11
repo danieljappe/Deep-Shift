@@ -33,9 +33,16 @@ namespace DeepShift.Mining
 
         // ── Public properties ─────────────────────────────────────────────────
 
-        public int   Width    => _gridWidth;
-        public int   Height   => _gridHeight;
-        public float TileSize => _tileSize;
+        public int        Width               => _gridWidth;
+        public int        Height              => _gridHeight;
+        public float      TileSize            => _tileSize;
+
+        /// <summary>
+        /// Grid coordinate of the most recently destroyed tile.
+        /// Updated immediately before <c>TileDestroyed</c> is raised in <see cref="DestroyTile"/>.
+        /// Read by <see cref="DeepShift.Enemies.DrillVibrationBroadcaster"/> to broadcast a positioned DrillImpact event.
+        /// </summary>
+        public Vector2Int LastDrilledPosition { get; private set; }
 
         // ── Public methods ────────────────────────────────────────────────────
 
@@ -113,6 +120,7 @@ namespace DeepShift.Mining
             if (_grid[x, y].visualObject != null)
                 _grid[x, y].visualObject.SetActive(false);
 
+            LastDrilledPosition = new Vector2Int(x, y);
             _onTileDestroyed?.Raise();
             CheckAdjacentGas(x, y);
         }

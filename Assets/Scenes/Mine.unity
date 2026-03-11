@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 280243976}
   - component: {fileID: 280243975}
+  - component: {fileID: 280243977}
   m_Layer: 0
   m_Name: MineGrid
   m_TagString: Untagged
@@ -168,6 +169,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &280243977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 280243974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049b57b9ea9424b8784a7b1f001ce350, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Enemies.DrillVibrationBroadcaster
+  _onTileDestroyed: {fileID: 11400000, guid: 4eddd0614819d46b88f993cefb94959e, type: 2}
+  _onDrillImpact: {fileID: 11400000, guid: ea574ef225acd4d77a04ae0c4b709b6f, type: 2}
+  _mineGrid: {fileID: 280243975}
 --- !u!1 &294686320
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,7 +247,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 15
+  orthographic size: 20
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -330,6 +346,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1036142278}
   - component: {fileID: 1036142277}
+  - component: {fileID: 1036142279}
   m_Layer: 0
   m_Name: TestBootstrap
   m_TagString: Untagged
@@ -376,7 +393,9 @@ MonoBehaviour:
   _enemyNestMarkerPrefab: {fileID: 0}
   _supplyCacheMarkerPrefab: {fileID: 0}
   _blackMarketMarkerPrefab: {fileID: 0}
+  _enemySpawner: {fileID: 1036142279}
   _onHoistExtracted: {fileID: 11400000, guid: 66008aba4d7b142bd81f548f2a8f61cd, type: 2}
+  _onShiftStarted: {fileID: 11400000, guid: 7dde41aa75ef4430a83f3bf2b1b2b128, type: 2}
   _onPlayerFloorChanged: {fileID: 11400000, guid: 22f22dac40e754eceb6f02530e2cac63, type: 2}
 --- !u!4 &1036142278
 Transform:
@@ -393,6 +412,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1036142279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036142276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4668f8ccd40dc45d78b6ea20b8a927cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Enemies.EnemySpawner
+  _config: {fileID: 11400000, guid: 9677c0c06172345a4a2ece0fdbdecf2a, type: 2}
+  _spawnClearRadius: 3
+  _hoistClearRadius: 3
 --- !u!1 &1778964065
 GameObject:
   m_ObjectHideFlags: 0
@@ -406,6 +440,7 @@ GameObject:
   - component: {fileID: 1778964066}
   - component: {fileID: 1778964070}
   - component: {fileID: 1778964069}
+  - component: {fileID: 1778964071}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -439,13 +474,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.PlayerController
   _moveSpeed: 5
   _mineGrid: {fileID: 280243975}
-  _maxHealth: 100
   _interactRadius: 1.2
   _interactableLayers:
     serializedVersion: 2
     m_Bits: 64
-  _onPlayerHealthChanged: {fileID: 11400000, guid: 9286e32ed3c644ef39fb6500c20aae66, type: 2}
-  _onPlayerDied: {fileID: 11400000, guid: 522909d3e4546481c9723f63d913c56b, type: 2}
+  _onEnemyDealDamage: {fileID: 11400000, guid: 44759cb333e424f7b8162b702f55ab72, type: 2}
 --- !u!4 &1778964068
 Transform:
   m_ObjectHideFlags: 0
@@ -488,6 +521,88 @@ MonoBehaviour:
   _chargeTime: 0.8
   _mineGrid: {fileID: 280243975}
   _onOrePickedUp: {fileID: 11400000, guid: f589e6bed3cb8409981f33a49d6a83ed, type: 2}
+--- !u!114 &1778964071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778964065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 716bf85820af545f9a04a0a36ab56f05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Player.PlayerHealthSystem
+  _maxHealth: 100
+  _onPlayerHealthChanged: {fileID: 11400000, guid: 9286e32ed3c644ef39fb6500c20aae66, type: 2}
+  _onPlayerDied: {fileID: 11400000, guid: 522909d3e4546481c9723f63d913c56b, type: 2}
+  _onPlayerFloorChanged: {fileID: 11400000, guid: 22f22dac40e754eceb6f02530e2cac63, type: 2}
+  _onShiftStarted: {fileID: 11400000, guid: 7dde41aa75ef4430a83f3bf2b1b2b128, type: 2}
+--- !u!1 &2089534462
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2089534465}
+  - component: {fileID: 2089534464}
+  - component: {fileID: 2089534463}
+  m_Layer: 0
+  m_Name: System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2089534463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089534462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ba686453c904b91a5d319ad4310744, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Death.DeathPenaltySystem
+  _revivalFee: 150
+  _deathScreenUI: {fileID: 2136319202}
+  _onPlayerDied: {fileID: 11400000, guid: 522909d3e4546481c9723f63d913c56b, type: 2}
+--- !u!114 &2089534464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089534462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdcd4340831224477a690c93432880b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Hazards.GasDamageSystem
+  _gasDamagePerTick: 5
+  _gasBurstDamage: 20
+  _tickInterval: 1
+  _mineGrid: {fileID: 280243975}
+  _onHazardTriggered: {fileID: 11400000, guid: e8d234f98c2cb4701bc95fea66c807d0, type: 2}
+--- !u!4 &2089534465
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089534462}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2136319198
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,8 +613,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2136319200}
   - component: {fileID: 2136319199}
+  - component: {fileID: 2136319201}
+  - component: {fileID: 2136319203}
+  - component: {fileID: 2136319202}
   m_Layer: 0
-  m_Name: OreHUD
+  m_Name: HUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -526,13 +644,60 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2136319198}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2136319201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136319198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe8149a78a98a48839e45f77f15492e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.UI.HoistCountdownHUD
+  _onHoistCountdownTick: {fileID: 11400000, guid: 07d17408660b7464c8412ec4788c263f, type: 2}
+  _onHoistCancelled: {fileID: 11400000, guid: 088b08c921e02473585253e58202e236, type: 2}
+  _onPlayerFloorChanged: {fileID: 11400000, guid: 22f22dac40e754eceb6f02530e2cac63, type: 2}
+  _abortFlashDuration: 3
+  _descendingDuration: 3
+--- !u!114 &2136319202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136319198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbfe46127683d4b95a30cd74d488515e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.UI.DeathScreenUI
+  _onShiftStarted: {fileID: 11400000, guid: 7dde41aa75ef4430a83f3bf2b1b2b128, type: 2}
+--- !u!114 &2136319203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136319198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc3cea10f3cc443be83e39f42d3eaca0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.UI.HealthBarHUD
+  _onPlayerHealthChanged: {fileID: 11400000, guid: 9286e32ed3c644ef39fb6500c20aae66, type: 2}
+  _barX: 20
+  _barY: 20
+  _barWidth: 200
+  _barHeight: 20
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -542,3 +707,4 @@ SceneRoots:
   - {fileID: 1778964068}
   - {fileID: 1036142278}
   - {fileID: 2136319200}
+  - {fileID: 2089534465}

@@ -24,7 +24,8 @@ namespace DeepShift.Player
 
         // ── State ──────────────────────────────────────────────────────────────
 
-        private int _currentHealth;
+        private int   _currentHealth;
+        private float _damageFlashTimer;
 
         /// <summary>True once HP reaches zero; cleared by <see cref="ResetToFull"/>.</summary>
         public bool IsDead { get; private set; }
@@ -32,6 +33,20 @@ namespace DeepShift.Player
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
         private void Awake() => _currentHealth = _maxHealth;
+
+        private void Update()
+        {
+            if (_damageFlashTimer > 0f)
+                _damageFlashTimer -= Time.deltaTime;
+        }
+
+        private void OnGUI()
+        {
+            if (_damageFlashTimer <= 0f) return;
+            GUI.color = new Color(1f, 0f, 0f, 0.25f);
+            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
 
         private void OnEnable()
         {
@@ -68,7 +83,8 @@ namespace DeepShift.Player
         {
             if (IsDead) return;
 
-            _currentHealth = Mathf.Max(0, _currentHealth - amount);
+            _currentHealth    = Mathf.Max(0, _currentHealth - amount);
+            _damageFlashTimer = 0.4f;
             _onPlayerHealthChanged?.Raise((float)_currentHealth / _maxHealth);
 
             if (_currentHealth <= 0)

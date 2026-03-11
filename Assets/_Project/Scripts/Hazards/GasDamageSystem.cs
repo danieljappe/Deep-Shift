@@ -45,7 +45,7 @@ namespace DeepShift.Hazards
         // ── Timers ─────────────────────────────────────────────────────────────
 
         private float _tickTimer;
-        private float _flashTimer;
+        private float _breachMessageTimer;
         private bool  _showBreachMessage;
 
         // ── Cached GUI style ───────────────────────────────────────────────────
@@ -75,10 +75,10 @@ namespace DeepShift.Hazards
 
         private void Update()
         {
-            if (_flashTimer > 0f)
+            if (_breachMessageTimer > 0f)
             {
-                _flashTimer -= Time.deltaTime;
-                if (_flashTimer <= 0f)
+                _breachMessageTimer -= Time.deltaTime;
+                if (_breachMessageTimer <= 0f)
                     _showBreachMessage = false;
             }
 
@@ -96,8 +96,8 @@ namespace DeepShift.Hazards
             if (_playerHealth == null) return;
 
             _playerHealth.TakeDamage(_gasBurstDamage);
-            _flashTimer       = 1.5f;
-            _showBreachMessage = true;
+            _breachMessageTimer = 1.5f;
+            _showBreachMessage  = true;
             Debug.Log($"[GasDamageSystem] GAS POCKET BREACHED — {_gasBurstDamage} damage.");
         }
 
@@ -118,7 +118,6 @@ namespace DeepShift.Hazards
             if (!(tile.Value.data is GasTileDataSO)) return;
 
             _playerHealth.TakeDamage(_gasDamagePerTick);
-            _flashTimer = 0.4f;
             Debug.Log($"[GasDamageSystem] Gas tick — {_gasDamagePerTick} damage.");
         }
 
@@ -126,21 +125,14 @@ namespace DeepShift.Hazards
 
         private void OnGUI()
         {
-            if (_flashTimer <= 0f) return;
+            // Red screen tint is now handled by PlayerHealthSystem.OnGUI for all damage sources.
+            // GasDamageSystem only owns the breach text message.
+            if (!_showBreachMessage || _breachStyle == null) return;
 
-            // Red screen tint
-            GUI.color = new Color(1f, 0f, 0f, 0.25f);
-            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            // "GAS POCKET BREACHED" message — shown for the breach event only, not tick
-            if (_showBreachMessage && _breachStyle != null)
-            {
-                GUI.Label(
-                    new Rect(Screen.width * 0.5f - 240f, Screen.height * 0.65f, 480f, 50f),
-                    "GAS POCKET BREACHED",
-                    _breachStyle);
-            }
+            GUI.Label(
+                new Rect(Screen.width * 0.5f - 240f, Screen.height * 0.65f, 480f, 50f),
+                "GAS POCKET BREACHED",
+                _breachStyle);
         }
     }
 }

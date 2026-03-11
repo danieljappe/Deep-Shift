@@ -5,7 +5,7 @@ using DeepShift.Player;
 
 namespace DeepShift.Mining
 {
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour, IGameEventListener<int>
     {
         // ── Serialized config ─────────────────────────────────────────────────
 
@@ -19,10 +19,15 @@ namespace DeepShift.Mining
         [SerializeField] private float     _interactRadius    = 1.2f;
         [SerializeField] private LayerMask _interactableLayers;
 
+        [Header("Event Channels")]
+        /// <summary>Int event raised by enemies when they deal damage to the player.</summary>
+        [SerializeField] private GameEventSO_Int _onEnemyDealDamage;
+
         // ── Private state ─────────────────────────────────────────────────────
 
-        private Vector2     _aimDirection = Vector2.down;
-        private Rigidbody2D _rb;
+        private Vector2          _aimDirection = Vector2.down;
+        private Rigidbody2D      _rb;
+        private CircleCollider2D _circleCollider;
         private UnityEngine.Camera _camera;
 
         private PlayerHealthSystem _health;
@@ -56,18 +61,38 @@ namespace DeepShift.Mining
             _interactAction.Enable();
         }
 
+        private void OnEnable()
+        {
+            _onEnemyDealDamage?.RegisterListener(this);
+            Debug.Log($"[PlayerController] OnEnable — EnemyDealDamage SO = {(_onEnemyDealDamage != null ? _onEnemyDealDamage.name : "NULL")}");
+        }
+
+        private void OnDisable() => _onEnemyDealDamage?.UnregisterListener(this);
+
         private void OnDestroy()
         {
             _moveAction.Disable();
             _interactAction.Disable();
         }
 
+        /// <summary>
+        /// Receives damage from the EnemyDealDamage event and forwards it to
+        /// <see cref="PlayerHealthSystem"/>. Enemies must NOT call TakeDamage directly —
+        /// they raise the event and this handler applies it.
+        /// </summary>
+        public void OnEventRaised(int damage)
+        {
+            Debug.Log($"[PlayerController] OnEventRaised — damage={damage}, health null={_health == null}");
+            _health?.TakeDamage(damage);
+        }
+
         private void Start()
         {
             // Moved from Awake so PlayerSetup.Awake() has already run AddComponent<Rigidbody2D>()
-            _rb     = GetComponent<Rigidbody2D>();
-            _camera = UnityEngine.Camera.main;
-            _health = GetComponent<PlayerHealthSystem>();
+            _rb             = GetComponent<Rigidbody2D>();
+            _circleCollider = GetComponent<CircleCollider2D>();
+            _camera         = UnityEngine.Camera.main;
+            _health         = GetComponent<PlayerHealthSystem>();
 
             if (_mineGrid == null) return;
 
@@ -148,26 +173,32 @@ namespace DeepShift.Mining
 
         /// <summary>
         /// Zeroes out velocity components that would move the player into a solid tile.
+        /// Uses the leading edge of the collider (centre ± radius) to determine which tile
+        /// to test, so the player snaps flush to the wall boundary rather than stopping
+        /// early when the centre rounds to the wrong tile.
         /// Checks each axis independently so the player can slide along walls.
         /// </summary>
         private Vector2 BlockMovement(Vector2 velocity)
         {
-            Vector2Int cell = _mineGrid.WorldToGrid(transform.position);
+            float r   = _circleCollider != null ? _circleCollider.radius : 0.3f;
+            Vector2 pos = _rb.position;
 
             if (velocity.x != 0f)
             {
-                int nx = cell.x + (int)Mathf.Sign(velocity.x);
-                bool solid = IsSolid(nx, cell.y);
-                Debug.Log($"[Player] Checking tile ({nx},{cell.y}) for X movement — solid: {solid}, tile: {TileNameAt(nx, cell.y)}");
-                if (solid) velocity.x = 0f;
+                // Test the tile that the leading X edge currently occupies.
+                // When that tile is solid the edge has reached the wall boundary.
+                float edgeX = pos.x + Mathf.Sign(velocity.x) * r;
+                int tileX   = Mathf.RoundToInt(edgeX);
+                int tileY   = Mathf.RoundToInt(pos.y);
+                if (IsSolid(tileX, tileY)) velocity.x = 0f;
             }
 
             if (velocity.y != 0f)
             {
-                int ny = cell.y + (int)Mathf.Sign(velocity.y);
-                bool solid = IsSolid(cell.x, ny);
-                Debug.Log($"[Player] Checking tile ({cell.x},{ny}) for Y movement — solid: {solid}, tile: {TileNameAt(cell.x, ny)}");
-                if (solid) velocity.y = 0f;
+                float edgeY = pos.y + Mathf.Sign(velocity.y) * r;
+                int tileX   = Mathf.RoundToInt(pos.x);
+                int tileY   = Mathf.RoundToInt(edgeY);
+                if (IsSolid(tileX, tileY)) velocity.y = 0f;
             }
 
             return velocity;
@@ -227,12 +258,5 @@ namespace DeepShift.Mining
             return true;
         }
 
-        private string TileNameAt(int x, int y)
-        {
-            MineGrid.TileInstance? tile = _mineGrid.GetTile(x, y);
-            if (tile == null) return "OUT_OF_BOUNDS";
-            if (tile.Value.isDestroyed) return "DESTROYED";
-            return tile.Value.data != null ? tile.Value.data.tileName : "NULL_DATA";
-        }
     }
 }
