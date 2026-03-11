@@ -1,6 +1,8 @@
 // TODO: Replace with procedural generation in Phase 3
 
+using System.Collections.Generic;
 using UnityEngine;
+using DeepShift.Core;
 using DeepShift.Hazards;
 
 namespace DeepShift.Mining
@@ -9,8 +11,10 @@ namespace DeepShift.Mining
     /// Prototype-only scene bootstrap. Generates a cellular automata cave, runs the room
     /// placement pass, stamps all tile overrides, and provides the player spawn position.
     /// Attach to any GameObject in the Mine scene alongside a configured <see cref="MineGrid"/>.
+    /// Subscribes to <c>HoistExtracted</c> to trigger in-place floor regeneration without
+    /// reloading the scene.
     /// </summary>
-    public class MineTestBootstrap : MonoBehaviour
+    public class MineTestBootstrap : MonoBehaviour, IGameEventListener
     {
         [Header("Grid")]
         [SerializeField] private MineGrid   _mineGrid;
@@ -45,17 +49,91 @@ namespace DeepShift.Mining
         [SerializeField] private GameObject _supplyCacheMarkerPrefab;
         [SerializeField] private GameObject _blackMarketMarkerPrefab;
 
+        [Header("Event Channels — Subscribe")]
+        [SerializeField] private GameEventSO _onHoistExtracted;
+
+        [Header("Event Channels — Raise")]
+        [SerializeField] private GameEventSO_Int _onPlayerFloorChanged;
+
         // ── Private state ──────────────────────────────────────────────────────
 
-        private int                _usedSeed;
+        private int                 _usedSeed;
         private RoomPlacementResult _placementResult;
 
+        /// <summary>Tracks terminal/marker GameObjects spawned per floor so they can be cleared on regeneration.</summary>
+        private readonly List<GameObject> _spawnedTerminals = new();
+
         // ── Lifecycle ──────────────────────────────────────────────────────────
+
+        private void OnEnable()  => _onHoistExtracted?.RegisterListener(this);
+        private void OnDisable() => _onHoistExtracted?.UnregisterListener(this);
 
         private void Start()
         {
             if (!ValidateReferences()) return;
+            GenerateFloor();
+        }
 
+        // ── IGameEventListener ─────────────────────────────────────────────────
+
+        /// <summary>Called when HoistExtracted fires — regenerates the floor in place.</summary>
+        public void OnEventRaised() => RegenerateFloor();
+
+        // ── Public API ─────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Returns the world-space centre of the player spawn room.
+        /// <see cref="PlayerController"/> calls this in Start() to position the player.
+        /// </summary>
+        public Vector3 GetSpawnPosition()
+        {
+            return _mineGrid.GridToWorld(_placementResult.spawnCentre.x, _placementResult.spawnCentre.y);
+        }
+
+        // ── Floor generation ───────────────────────────────────────────────────
+
+        /// <summary>
+        /// Clears all floor-scoped objects (spawned terminals, pickups, floating text),
+        /// increments the floor depth, regenerates the cave and rooms, teleports the player
+        /// to the new spawn, and raises <see cref="_onPlayerFloorChanged"/>.
+        /// </summary>
+        private void RegenerateFloor()
+        {
+            // Destroy spawned terminal/marker GameObjects from the previous floor
+            foreach (var go in _spawnedTerminals)
+            {
+                if (go != null) Destroy(go);
+            }
+            _spawnedTerminals.Clear();
+
+            // Destroy any remaining ore pickups and floating text
+            foreach (var pickup in FindObjectsByType<OrePickup>(FindObjectsSortMode.None))
+                Destroy(pickup.gameObject);
+
+            foreach (var text in FindObjectsByType<DeepShift.UI.FloatingText>(FindObjectsSortMode.None))
+                Destroy(text.gameObject);
+
+            _floorDepth++;
+            GenerateFloor();
+
+            // Teleport the player to the new spawn position
+            var player = FindFirstObjectByType<PlayerController>();
+            if (player != null)
+                player.TeleportTo(GetSpawnPosition());
+
+            _onPlayerFloorChanged?.Raise(_floorDepth);
+            Debug.Log($"[MineTestBootstrap] DESCENDING — Floor {_floorDepth}");
+
+            // TODO: When the run ends (death or surface extraction), transition to Surface Camp.
+            // Debug.Log("Run ended — transition to Surface Camp here");
+        }
+
+        /// <summary>
+        /// Runs CA cave generation, room placement, tile stamping, and terminal spawning.
+        /// Updates <see cref="_placementResult"/> with the new layout.
+        /// </summary>
+        private void GenerateFloor()
+        {
             int w = _mineGrid.Width;
             int h = _mineGrid.Height;
 
@@ -64,7 +142,6 @@ namespace DeepShift.Mining
             bool    connected = false;
             int     attempt   = 0;
 
-            // Temporary spawn/intercom for connectivity check; RoomPlacer will refine spawn.
             Vector2Int tempSpawn    = new Vector2Int(w / 2, h / 2);
             Vector2Int tempIntercom = ClampToInterior(tempSpawn + new Vector2Int(0, -5), w, h);
 
@@ -116,7 +193,6 @@ namespace DeepShift.Mining
             {
                 if (!room.isSealed) continue;
                 var b = room.bounds;
-                // Border ring → solid rock
                 for (int x = b.xMin; x < b.xMax; x++)
                 for (int y = b.yMin; y < b.yMax; y++)
                 {
@@ -211,21 +287,10 @@ namespace DeepShift.Mining
                 }
             }
 
-            Debug.Log($"[MineTestBootstrap] Mine ready — {w}×{h}, seed: {_usedSeed}, " +
+            Debug.Log($"[MineTestBootstrap] Floor {_floorDepth} ready — {w}×{h}, seed: {_usedSeed}, " +
                       $"spawn: {_placementResult.spawnCentre}, " +
                       $"intercom: {_placementResult.intercomCentre}, " +
                       $"hoist: {_placementResult.hoistCentre}");
-        }
-
-        // ── Public API ─────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Returns the world-space centre of the player spawn room.
-        /// <see cref="PlayerController"/> calls this in Start() to position the player.
-        /// </summary>
-        public Vector3 GetSpawnPosition()
-        {
-            return _mineGrid.GridToWorld(_placementResult.spawnCentre.x, _placementResult.spawnCentre.y);
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────
@@ -233,7 +298,8 @@ namespace DeepShift.Mining
         private void SpawnTerminal(GameObject prefab, Vector2Int cell)
         {
             if (prefab == null) return;
-            Instantiate(prefab, _mineGrid.GridToWorld(cell.x, cell.y), Quaternion.identity);
+            var go = Instantiate(prefab, _mineGrid.GridToWorld(cell.x, cell.y), Quaternion.identity);
+            _spawnedTerminals.Add(go);
         }
 
         private static Vector2Int PickBorderCellNearestGridCentre(RectInt bounds, int gridW, int gridH)
@@ -242,7 +308,6 @@ namespace DeepShift.Mining
             Vector2Int best       = new Vector2Int(bounds.xMin, bounds.yMin);
             float      bestDist   = float.MaxValue;
 
-            // Walk border ring
             for (int x = bounds.xMin; x < bounds.xMax; x++)
             for (int y = bounds.yMin; y < bounds.yMax; y++)
             {

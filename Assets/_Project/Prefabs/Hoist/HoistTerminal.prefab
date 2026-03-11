@@ -46,8 +46,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 347b5d434a45e43029666f0d0e7e7a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Hoist.HoistTerminal
+  _countdownDuration: 8
+  _hoistStayRadius: 1.5
   _onIntercomActivated: {fileID: 11400000, guid: 1c0e0b6369b68475e9666106cf864167, type: 2}
   _onHoistCalled: {fileID: 11400000, guid: 243102bff36994f76934ddccf538f67e, type: 2}
+  _onHoistCountdownTick: {fileID: 11400000, guid: 07d17408660b7464c8412ec4788c263f, type: 2}
+  _onHoistExtracted: {fileID: 11400000, guid: 66008aba4d7b142bd81f548f2a8f61cd, type: 2}
+  _onHoistCancelled: {fileID: 11400000, guid: 088b08c921e02473585253e58202e236, type: 2}
 --- !u!58 &5529173659771525680
 CircleCollider2D:
   m_ObjectHideFlags: 0

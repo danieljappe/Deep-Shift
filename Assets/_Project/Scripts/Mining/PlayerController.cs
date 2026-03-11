@@ -234,6 +234,19 @@ namespace DeepShift.Mining
             Debug.Log("[PlayerController] Player died.");
         }
 
+        // ── Public movement API ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Teleports the player to <paramref name="worldPos"/> immediately,
+        /// syncing both the transform and the Rigidbody2D to avoid physics desync.
+        /// </summary>
+        public void TeleportTo(Vector3 worldPos)
+        {
+            transform.position = worldPos;
+            if (_rb != null)
+                _rb.position = new Vector2(worldPos.x, worldPos.y);
+        }
+
         // ── Helpers ───────────────────────────────────────────────────────────
 
         /// <summary>

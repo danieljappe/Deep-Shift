@@ -376,6 +376,8 @@ MonoBehaviour:
   _enemyNestMarkerPrefab: {fileID: 0}
   _supplyCacheMarkerPrefab: {fileID: 0}
   _blackMarketMarkerPrefab: {fileID: 0}
+  _onHoistExtracted: {fileID: 11400000, guid: 66008aba4d7b142bd81f548f2a8f61cd, type: 2}
+  _onPlayerFloorChanged: {fileID: 11400000, guid: 22f22dac40e754eceb6f02530e2cac63, type: 2}
 --- !u!4 &1036142278
 Transform:
   m_ObjectHideFlags: 0

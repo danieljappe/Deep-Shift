@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fe8149a78a98a48839e45f77f15492e2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _onHoistCountdownTick: {fileID: 11400000, guid: 07d17408660b7464c8412ec4788c263f, type: 2}
+  - _onHoistCancelled: {fileID: 11400000, guid: 088b08c921e02473585253e58202e236, type: 2}
+  - _onPlayerFloorChanged: {fileID: 11400000, guid: 22f22dac40e754eceb6f02530e2cac63, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
