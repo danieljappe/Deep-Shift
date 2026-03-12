@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee604eae5c08d4642b624ec2f267cc8f, type: 3}
   m_Name: BoltPistol
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Weapons.WeaponDataSO
-  displayName: 
+  displayName: Bolt Pistol
   damage: 10
   fireRate: 2
   projectileSpeed: 12

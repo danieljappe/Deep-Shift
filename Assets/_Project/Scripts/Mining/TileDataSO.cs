@@ -29,5 +29,30 @@ namespace DeepShift.Mining
 
         /// <summary>Solid colour used to tint this tile during prototyping before final sprites are in place.</summary>
         public Color debugColor;
+
+        /// <summary>
+        /// Sprite variants for this tile. Index 0 is the base sprite; indices 1+ are rare variants.
+        /// If empty, falls back to debugColor on a plain quad.
+        /// </summary>
+        public Sprite[] sprites;
+
+        /// <summary>
+        /// Number of sprites (from index 0) treated as common base tiles.
+        /// The remaining sprites are rare variants chosen only when a variant roll succeeds.
+        /// </summary>
+        public int baseCount = 1;
+
+        /// <summary>
+        /// Probability (0–1) that a variant sprite (index baseCount+) is chosen instead of a base sprite.
+        /// 0 = always base; 0.1 = 10% chance of a variant. Ignored if sprites has only base entries.
+        /// </summary>
+        [Range(0f, 1f)]
+        public float variantChance = 0.15f;
+
+        /// <summary>
+        /// Sorting order used by the SpriteRenderer. Lower values render behind higher values.
+        /// Set floor tiles to -1, wall/ore tiles to 0.
+        /// </summary>
+        public int sortingOrder = 0;
     }
 }

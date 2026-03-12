@@ -179,32 +179,62 @@ namespace DeepShift.Mining
             var go = _grid[x, y].visualObject;
             if (go == null) return;
 
+            // If the tile type changes between sprite-based and quad-based, recreate the visual
+            bool incomingHasSprites = data.sprites != null && data.sprites.Length > 0;
+            bool currentHasSr      = go.GetComponentInChildren<SpriteRenderer>() != null;
+
+            if (incomingHasSprites != currentHasSr)
+            {
+                Destroy(go);
+                _grid[x, y].visualObject = CreateVisual(x, y, data);
+                return;
+            }
+
             go.SetActive(true);
-            go.GetComponent<Renderer>().material.color = data.debugColor;
+
+            var sr = go.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null)
+            {
+                if (incomingHasSprites)
+                    sr.sprite = PickSprite(data);
+            }
+            else
+            {
+                var rend = go.GetComponentInChildren<Renderer>();
+                if (rend != null) rend.material.color = data.debugColor;
+            }
         }
 
         // ── Private helpers ───────────────────────────────────────────────────
 
         private GameObject CreateVisual(int x, int y, TileDataSO tile)
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            go.name = $"Tile_{x}_{y}";
+            var go = new GameObject($"Tile_{x}_{y}");
             go.transform.SetParent(transform);
-            go.transform.position   = GridToWorld(x, y);
-            go.transform.localScale = Vector3.one * _tileSize;
+            go.transform.position = GridToWorld(x, y);
 
-            var renderer = go.GetComponent<Renderer>();
-            renderer.sortingLayerName = "Tiles";
+            if (tile.sprites != null && tile.sprites.Length > 0)
+            {
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite           = PickSprite(tile);
+                sr.sortingLayerName = "Tiles";
+                sr.sortingOrder     = tile.sortingOrder;
+            }
+            else
+            {
+                // Fallback: plain coloured quad for tiles without sprites yet
+                var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                quad.transform.SetParent(go.transform);
+                quad.transform.localPosition = Vector3.zero;
+                quad.transform.localScale    = Vector3.one * _tileSize;
+                Destroy(quad.GetComponent<Collider>());
 
-            // Use a new unlit material per tile so debugColor is always visible
-            // regardless of render pipeline. MaterialPropertyBlock on the default
-            // URP Lit material does not reliably tint without GPU instancing enabled.
-            var mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-            mat.color = tile.debugColor;
-            renderer.material = mat;
-
-            // Remove the auto-generated collider — collision is handled at the grid level
-            Destroy(go.GetComponent<Collider>());
+                var rend = quad.GetComponent<Renderer>();
+                rend.sortingLayerName = "Tiles";
+                var mat   = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+                mat.color = tile.debugColor;
+                rend.material = mat;
+            }
 
             return go;
         }
@@ -224,5 +254,16 @@ namespace DeepShift.Mining
 
         private bool InBounds(int x, int y) =>
             x >= 0 && x < _gridWidth && y >= 0 && y < _gridHeight;
+
+        private static Sprite PickSprite(TileDataSO tile)
+        {
+            int baseCount = Mathf.Clamp(tile.baseCount, 1, tile.sprites.Length);
+            bool hasVariants = tile.sprites.Length > baseCount;
+
+            if (!hasVariants || Random.value > tile.variantChance)
+                return tile.sprites[Random.Range(0, baseCount)];
+
+            return tile.sprites[Random.Range(baseCount, tile.sprites.Length)];
+        }
     }
 }

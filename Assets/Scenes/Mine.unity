@@ -441,6 +441,8 @@ GameObject:
   - component: {fileID: 1778964070}
   - component: {fileID: 1778964069}
   - component: {fileID: 1778964071}
+  - component: {fileID: 1778964073}
+  - component: {fileID: 1778964072}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -519,6 +521,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.DrillController
   _chargeTime: 0.8
+  _drillDamage: 1
   _mineGrid: {fileID: 280243975}
   _onOrePickedUp: {fileID: 11400000, guid: f589e6bed3cb8409981f33a49d6a83ed, type: 2}
 --- !u!114 &1778964071
@@ -538,6 +541,37 @@ MonoBehaviour:
   _onPlayerDied: {fileID: 11400000, guid: 522909d3e4546481c9723f63d913c56b, type: 2}
   _onPlayerFloorChanged: {fileID: 11400000, guid: 22f22dac40e754eceb6f02530e2cac63, type: 2}
   _onShiftStarted: {fileID: 11400000, guid: 7dde41aa75ef4430a83f3bf2b1b2b128, type: 2}
+--- !u!114 &1778964072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778964065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdd41869ac3a24f12931a04baf173c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Player.HotbarController
+  _drill: {fileID: 1778964070}
+  _ranged: {fileID: 1778964073}
+  _onWeaponSlotChanged: {fileID: 11400000, guid: 6e2231d60d0ee44c7b9bc737b932bd47, type: 2}
+--- !u!114 &1778964073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1778964065}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049e49ac78c6d4d629b2b2e19e22ac9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Weapons.RangedWeaponController
+  _data: {fileID: 11400000, guid: c5c42231e0d4c4da8b9f5e20f8c0812a, type: 2}
+  _mineGrid: {fileID: 280243975}
+  _onWeaponAmmoChanged: {fileID: 11400000, guid: ddaab17f4387f4226aed6f765127cbc9, type: 2}
+  _onWeaponFired: {fileID: 11400000, guid: 725c767524bd04f899382387fd26112f, type: 2}
 --- !u!1 &2089534462
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,6 +650,7 @@ GameObject:
   - component: {fileID: 2136319201}
   - component: {fileID: 2136319203}
   - component: {fileID: 2136319202}
+  - component: {fileID: 2136319204}
   m_Layer: 0
   m_Name: HUD
   m_TagString: Untagged
@@ -694,10 +729,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeepShift.UI.HealthBarHUD
   _onPlayerHealthChanged: {fileID: 11400000, guid: 9286e32ed3c644ef39fb6500c20aae66, type: 2}
-  _barX: 20
-  _barY: 20
+  _barMarginLeft: 30
+  _barMarginBottom: 30
   _barWidth: 200
   _barHeight: 20
+--- !u!114 &2136319204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136319198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a19812aa2b8374361839c4f6f4cba161, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.UI.HotbarHUD
+  _onWeaponSlotChanged: {fileID: 11400000, guid: 6e2231d60d0ee44c7b9bc737b932bd47, type: 2}
+  _onWeaponAmmoChanged: {fileID: 11400000, guid: ddaab17f4387f4226aed6f765127cbc9, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
