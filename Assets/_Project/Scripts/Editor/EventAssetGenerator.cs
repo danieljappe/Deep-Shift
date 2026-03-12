@@ -18,6 +18,7 @@ namespace DeepShift.Editor
             EnsureFolder(EventsRoot, "ORION");
             EnsureFolder(EventsRoot, "Shift");
             EnsureFolder(EventsRoot, "Enemies");
+            EnsureFolder(EventsRoot, "Weapons");
 
             // Player
             Create<GameEventSO>      ("Player", "PlayerDied");
@@ -54,6 +55,12 @@ namespace DeepShift.Editor
             Create<GameEventSO>    ("Enemies", "EnemyAlerted");
             Create<GameEventSO_Int>("Enemies", "EnemyDealDamage");
             Create<GameEventSO>    ("Enemies", "EnemyDied");
+
+            // Weapons
+            Create<GameEventSO_Int>("Weapons", "WeaponSlotChanged");    // 0=Drill, 1=Ranged
+            Create<GameEventSO_Int>("Weapons", "WeaponAmmoChanged");    // current ammo count
+            Create<GameEventSO_Int>("Weapons", "WeaponFired");          // damage value
+            Create<GameEventSO>    ("Weapons", "ProjectileHitEnemy");   // no payload
 
             // Shift
             Create<GameEventSO>("Shift", "ShiftStarted");

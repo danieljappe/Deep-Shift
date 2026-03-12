@@ -64,6 +64,7 @@ namespace DeepShift.Enemies
         private enum BorerState { Idle, Alert, Aggro, DeAggro }
 
         private BorerState  _state            = BorerState.Idle;
+        private int         _maxHp;
         private int         _currentHp;
         private int         _vibrationCounter;
         private bool        _hoistSwarmActive;
@@ -71,7 +72,6 @@ namespace DeepShift.Enemies
         private bool        _deAggroTimerRunning;
         private float       _lungeCooldownRemaining;
         private bool        _isLunging;
-        private float       _debugLogTimer;
 
         private MineGrid    _mineGrid;
         private Vector3     _spawnPosition;
@@ -93,7 +93,8 @@ namespace DeepShift.Enemies
         private void Start()
         {
             _spawnPosition = transform.position;
-            _currentHp     = _data != null ? _data.hp : 3;
+            _maxHp         = _data != null ? _data.hp : 3;
+            _currentHp     = _maxHp;
 
             // Resolve scene references at runtime — prefabs cannot store scene object refs
             _mineGrid = FindFirstObjectByType<MineGrid>();
@@ -104,12 +105,7 @@ namespace DeepShift.Enemies
             var hoistObj = FindFirstObjectByType<HoistTerminal>();
             if (hoistObj != null) _hoistTerminalTransform = hoistObj.transform;
 
-            // ── DEBUG: verify all references resolved correctly ───────────────
-            Debug.Log($"[Borer] Start — data={(_data != null ? _data.name : "NULL")}, " +
-                      $"mineGrid={(_mineGrid != null ? "OK" : "NULL")}, " +
-                      $"player={(_playerTransform != null ? "OK" : "NULL")}, " +
-                      $"drillImpactSO={(_onDrillImpact != null ? _onDrillImpact.name : "NULL")}, " +
-                      $"dealDamageSO={(_onEnemyDealDamage != null ? _onEnemyDealDamage.name : "NULL")}");
+            GetComponent<BorerHealthBar>()?.InitialiseBar(_maxHp, _currentHp);
 
             StartCoroutine(VibrationDecayRoutine());
         }
@@ -201,6 +197,8 @@ namespace DeepShift.Enemies
             if (_currentHp <= 0) return;
 
             _currentHp -= amount;
+            GetComponent<BorerHealthBar>()?.UpdateBar(_currentHp);
+            FloatingText.Spawn(transform.position + Vector3.up * 0.3f, $"-{amount}");
             if (_currentHp <= 0)
                 StartCoroutine(DieRoutine());
         }
@@ -229,6 +227,7 @@ namespace DeepShift.Enemies
             _state = BorerState.Aggro;
             _deAggroTimerRunning = false;
             _deAggroTimer        = 0f;
+            GetComponent<BorerHealthBar>()?.SetAlwaysVisible(true);
             // TODO: play aggro visual (detach-from-wall animation state change)
         }
 
@@ -236,6 +235,7 @@ namespace DeepShift.Enemies
         {
             _state            = BorerState.DeAggro;
             _hoistSwarmActive = false;
+            GetComponent<BorerHealthBar>()?.SetAlwaysVisible(false);
             // TODO: play de-aggro visual
         }
 
@@ -244,6 +244,7 @@ namespace DeepShift.Enemies
             _state            = BorerState.Idle;
             _vibrationCounter = 0;
             _hoistSwarmActive = false;
+            GetComponent<BorerHealthBar>()?.SetAlwaysVisible(false);
             // TODO: play idle/return-to-wall animation
         }
 
@@ -254,18 +255,6 @@ namespace DeepShift.Enemies
             if (_data == null || _rb == null) return;
 
             Vector3 target = GetAggroTarget();
-
-            // ── DEBUG: log state every 2 seconds ─────────────────────────────
-            _debugLogTimer -= Time.deltaTime;
-            if (_debugLogTimer <= 0f)
-            {
-                _debugLogTimer = 2f;
-                float dist = _playerTransform != null
-                    ? Vector3.Distance(transform.position, _playerTransform.position)
-                    : -1f;
-                Debug.Log($"[Borer] AGGRO — dist={dist:F2}, lungeRange={_data.lungeRange}, " +
-                          $"cooldown={_lungeCooldownRemaining:F2}, isLunging={_isLunging}");
-            }
 
             // De-aggro check (skipped during hoist swarm)
             if (!_hoistSwarmActive && _playerTransform != null)
@@ -323,7 +312,6 @@ namespace DeepShift.Enemies
         private IEnumerator LungeRoutine(Vector3 target)
         {
             _isLunging = true;
-            Debug.Log($"[Borer] Lunge START — target={target}, dist={Vector3.Distance(transform.position, target):F2}");
 
             Vector3 start     = transform.position;
             Vector3 direction = (target - start).normalized;
@@ -341,7 +329,6 @@ namespace DeepShift.Enemies
             }
 
             // Deal damage via event bus — PlayerController listens and calls TakeDamage
-            Debug.Log($"[Borer] Lunge END — raising EnemyDealDamage, SO null={_onEnemyDealDamage == null}, damage={_data.damage}");
             _onEnemyDealDamage?.Raise(_data.damage);
 
             _isLunging                  = false;

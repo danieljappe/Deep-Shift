@@ -71,24 +71,24 @@ namespace DeepShift.UI
             float cy = sh * 0.5f;
 
             // ── "SHIFT TERMINATED" header ──────────────────────────────────────
-            GUI.Label(new Rect(cx - 400f, cy - 180f, 800f, 80f),
+            GUI.Label(new Rect(cx - 900f, cy - 405f, 1800f, 180f),
                 "SHIFT TERMINATED", _headerStyle);
 
             // ── Penalty lines ──────────────────────────────────────────────────
-            GUI.Label(new Rect(cx - 320f, cy - 70f, 640f, 36f),
+            GUI.Label(new Rect(cx - 720f, cy - 157f, 1440f, 81f),
                 $"Ore lost:  {_oreLostDisplay} units", _bodyStyle);
 
-            GUI.Label(new Rect(cx - 320f, cy - 24f, 640f, 36f),
+            GUI.Label(new Rect(cx - 720f, cy - 54f, 1440f, 81f),
                 $"VEKTRA MEDICAL REVIVAL FEE: {_revivalFee} credits added to your account.",
                 _bodyStyle);
 
-            GUI.Label(new Rect(cx - 320f, cy + 22f, 640f, 36f),
+            GUI.Label(new Rect(cx - 720f, cy + 49f, 1440f, 81f),
                 $"Current total debt:  {_debtDisplay} credits", _bodyStyle);
 
             // ── Begin New Shift button ─────────────────────────────────────────
             // _buttonStyle uses GUI.skin and must be built inside OnGUI on first use
             if (_buttonStyle == null) BuildButtonStyle();
-            if (GUI.Button(new Rect(cx - 110f, cy + 100f, 220f, 52f),
+            if (GUI.Button(new Rect(cx - 247f, cy + 225f, 495f, 117f),
                     "Begin New Shift", _buttonStyle))
                 BeginNewShift();
         }
@@ -119,7 +119,7 @@ namespace DeepShift.UI
         {
             _headerStyle = new GUIStyle
             {
-                fontSize  = 52,
+                fontSize  = 117,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter,
             };
@@ -127,7 +127,7 @@ namespace DeepShift.UI
 
             _bodyStyle = new GUIStyle
             {
-                fontSize  = 22,
+                fontSize  = 49,
                 fontStyle = FontStyle.Normal,
                 alignment = TextAnchor.MiddleCenter,
             };
@@ -139,7 +139,7 @@ namespace DeepShift.UI
         {
             _buttonStyle = new GUIStyle(GUI.skin.button)
             {
-                fontSize  = 18,
+                fontSize  = 40,
                 fontStyle = FontStyle.Bold,
             };
             _buttonStyle.normal.textColor = Color.white;

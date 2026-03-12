@@ -25,7 +25,8 @@ namespace DeepShift.Mining
 
         // ── Private state ─────────────────────────────────────────────────────
 
-        private Vector2          _aimDirection = Vector2.down;
+        private Vector2          _aimDirection      = Vector2.down;
+        private Vector2          _exactAimDirection = Vector2.down;
         private Rigidbody2D      _rb;
         private CircleCollider2D _circleCollider;
         private UnityEngine.Camera _camera;
@@ -124,9 +125,15 @@ namespace DeepShift.Mining
 
         /// <summary>
         /// Normalised world-space direction from the player to the mouse cursor,
-        /// snapped to the nearest of 8 grid directions. Read by tools (drill, etc.).
+        /// snapped to the nearest of 8 grid directions. Read by the drill.
         /// </summary>
         public Vector2 AimDirection => _aimDirection;
+
+        /// <summary>
+        /// Exact normalised world-space direction from the player to the mouse cursor.
+        /// Read by ranged weapons for free-angle firing.
+        /// </summary>
+        public Vector2 ExactAimDirection => _exactAimDirection;
 
         // ── Aim ───────────────────────────────────────────────────────────────
 
@@ -151,7 +158,9 @@ namespace DeepShift.Mining
             float angle = Mathf.Atan2(toMouse.y, toMouse.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle - 90f);
 
-            // Snap normalised direction to nearest of 8 grid directions
+            _exactAimDirection = toMouse.normalized;
+
+            // Snap normalised direction to nearest of 8 grid directions (used by drill)
             _aimDirection = new Vector2(
                 Mathf.RoundToInt(toMouse.normalized.x),
                 Mathf.RoundToInt(toMouse.normalized.y)).normalized;

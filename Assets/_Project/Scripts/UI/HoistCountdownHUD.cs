@@ -47,7 +47,7 @@ namespace DeepShift.UI
         {
             _countdownStyle = new GUIStyle
             {
-                fontSize  = 48,
+                fontSize  = 108,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter,
             };
@@ -55,7 +55,7 @@ namespace DeepShift.UI
 
             _abortStyle = new GUIStyle
             {
-                fontSize  = 28,
+                fontSize  = 63,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter,
             };
@@ -63,7 +63,7 @@ namespace DeepShift.UI
 
             _descendingStyle = new GUIStyle
             {
-                fontSize  = 36,
+                fontSize  = 81,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter,
             };
@@ -127,14 +127,14 @@ namespace DeepShift.UI
             if (_countdownRemaining > 0f)
             {
                 string text = $"HOIST ENGAGED\n{_countdownRemaining:F1}s";
-                GUI.Label(new Rect(sw * 0.5f - 300f, sh * 0.3f, 600f, 120f), text, _countdownStyle);
+                GUI.Label(new Rect(sw * 0.5f - 675f, sh * 0.3f, 1350f, 270f), text, _countdownStyle);
             }
 
             // Abort flash — red, centre screen
             if (_abortTimer > 0f)
             {
                 GUI.Label(
-                    new Rect(sw * 0.5f - 400f, sh * 0.45f, 800f, 60f),
+                    new Rect(sw * 0.5f - 900f, sh * 0.45f, 1800f, 135f),
                     "HOIST ABORTED — Maintain position at terminal.",
                     _abortStyle);
             }
@@ -143,7 +143,7 @@ namespace DeepShift.UI
             if (_descendingTimer > 0f)
             {
                 GUI.Label(
-                    new Rect(sw * 0.5f - 300f, sh * 0.5f - 30f, 600f, 80f),
+                    new Rect(sw * 0.5f - 675f, sh * 0.5f - 67f, 1350f, 180f),
                     $"DESCENDING — Floor {_descendingFloor}",
                     _descendingStyle);
             }

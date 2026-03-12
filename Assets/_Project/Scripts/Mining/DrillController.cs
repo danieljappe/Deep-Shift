@@ -43,14 +43,23 @@ namespace DeepShift.Mining
             _drillAction = new InputAction("Drill", InputActionType.Button);
             _drillAction.AddBinding("<Mouse>/leftButton");
             _drillAction.AddBinding("<Gamepad>/buttonSouth");
-            _drillAction.Enable();
 
             BuildChargeIndicator();
         }
 
+        private void OnEnable()
+        {
+            _drillAction?.Enable();
+        }
+
+        private void OnDisable()
+        {
+            _drillAction?.Disable();
+            HideIndicator();
+        }
+
         private void OnDestroy()
         {
-            _drillAction.Disable();
             if (_indicatorRoot != null)
                 Destroy(_indicatorRoot);
         }

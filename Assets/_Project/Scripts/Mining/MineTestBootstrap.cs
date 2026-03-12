@@ -5,6 +5,7 @@ using UnityEngine;
 using DeepShift.Core;
 using DeepShift.Hazards;
 using DeepShift.Enemies;
+using DeepShift.Weapons;
 
 namespace DeepShift.Mining
 {
@@ -147,6 +148,9 @@ namespace DeepShift.Mining
 
             foreach (var pickup in FindObjectsByType<OrePickup>(FindObjectsSortMode.None))
                 Destroy(pickup.gameObject);
+
+            foreach (var proj in FindObjectsByType<Projectile>(FindObjectsSortMode.None))
+                Destroy(proj.gameObject);
 
             foreach (var text in FindObjectsByType<DeepShift.UI.FloatingText>(FindObjectsSortMode.None))
                 Destroy(text.gameObject);

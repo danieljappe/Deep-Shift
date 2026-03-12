@@ -160,6 +160,14 @@ Assets/_Project/
 
 ---
 
+## Implementation Status
+
+Keep `Docs/ImplementationStatus.md` up to date. After every feature addition, bug fix,
+or system change, update the relevant row(s) in that file before finishing the task.
+Use ✅ Done / ⬜ Pending / ⬜ Planned / ⬜ Stubbed as status markers.
+
+---
+
 ## Current Development Phase
 Phase 1 — Infrastructure & Prototype
 - [x] Git setup
