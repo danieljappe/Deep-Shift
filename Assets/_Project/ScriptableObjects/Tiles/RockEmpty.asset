@@ -17,4 +17,26 @@ MonoBehaviour:
   drillHitsRequired: 2
   containedOre: {fileID: 0}
   collapseRisk: 0.05
+  isWalkable: 0
   debugColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 1}
+  sprites: []
+  baseCount: 0
+  variantChance: 0.15
+  wangSprites:
+  - {fileID: -176685257, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -1248584830, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -330348070, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -36677875, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -627950573, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -888676069, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -854646712, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -8696733144534965287, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: 1066019987, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: 49574683, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -1577997150, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -1438832082, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: 260383330, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -559523570, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: 1594985571, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  - {fileID: -1557615866, guid: 24779a5ccbd404c2db18f89fbd41b901, type: 3}
+  sortingOrder: 0

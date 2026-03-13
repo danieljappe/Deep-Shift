@@ -177,6 +177,7 @@ namespace DeepShift.Mining
         /// </summary>
         private void GenerateFloor()
         {
+            var _sw = System.Diagnostics.Stopwatch.StartNew();
             int w = _mineGrid.Width;
             int h = _mineGrid.Height;
 
@@ -205,6 +206,9 @@ namespace DeepShift.Mining
 
             // ── Room placement pass (operates on caveMap only) ─────────────────
             _placementResult = RoomPlacer.PlaceRooms(caveMap, w, h, _floorDepth, _usedSeed);
+
+            Debug.Log($"[Perf] CaveGen+Rooms: {_sw.ElapsedMilliseconds}ms");
+            _sw.Restart();
 
             // ── Apply cave map to MineGrid ─────────────────────────────────────
             _mineGrid.GenerateGrid(_defaultRockTile);
@@ -334,6 +338,14 @@ namespace DeepShift.Mining
                       $"spawn: {_placementResult.spawnCentre}, " +
                       $"intercom: {_placementResult.intercomCentre}, " +
                       $"hoist: {_placementResult.hoistCentre}");
+
+            Debug.Log($"[Perf] Grid+SetTile: {_sw.ElapsedMilliseconds}ms");
+            _sw.Restart();
+
+            // ── Wang autotile pass — must run after all SetTile calls ──────────
+            _mineGrid.RefreshAllWangVisuals();
+            Debug.Log($"[Perf] WangRefresh: {_sw.ElapsedMilliseconds}ms");
+            _sw.Restart();
 
             // ── Enemy spawning ─────────────────────────────────────────────────
             _enemySpawner?.SpawnEnemies(

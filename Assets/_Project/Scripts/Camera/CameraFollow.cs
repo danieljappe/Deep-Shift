@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DeepShift.Camera
+namespace DeepShift.CameraSystem
 {
     /// <summary>
     /// Smoothly follows a target Transform, keeping the camera's Z position fixed.

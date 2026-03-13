@@ -50,6 +50,13 @@ namespace DeepShift.Mining
         public float variantChance = 0.15f;
 
         /// <summary>
+        /// 16-sprite Wang autotile set, indexed by a 4-bit corner bitmask (NW=bit0, NE=bit1, SE=bit2, SW=bit3).
+        /// When Length == 16, MineGrid uses neighbour-aware sprite selection instead of random PickSprite.
+        /// Leave empty for tiles that use the random <see cref="sprites"/> pool (e.g. floor tiles).
+        /// </summary>
+        public Sprite[] wangSprites;
+
+        /// <summary>
         /// Sorting order used by the SpriteRenderer. Lower values render behind higher values.
         /// Set floor tiles to -1, wall/ore tiles to 0.
         /// </summary>
