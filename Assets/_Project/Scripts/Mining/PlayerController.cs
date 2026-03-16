@@ -218,6 +218,7 @@ namespace DeepShift.Mining
         private void HandleInteract()
         {
             if (!_interactAction.WasPressedThisFrame()) return;
+
             var hits = Physics2D.OverlapCircleAll(transform.position, _interactRadius, _interactableLayers);
             foreach (var hit in hits)
             {

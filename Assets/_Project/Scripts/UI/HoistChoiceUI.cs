@@ -12,6 +12,7 @@ namespace DeepShift.UI
     ///   <item><b>Go Deeper</b> — advances to the next floor without banking.</item>
     /// </list>
     /// Attach to any active GameObject in the Mine scene. Wire <see cref="_onHoistExtracted"/> in the Inspector.
+    /// No other components need to be present — inventory and economy are resolved at extraction time.
     /// </summary>
     public class HoistChoiceUI : MonoBehaviour, IGameEventListener
     {
@@ -22,10 +23,9 @@ namespace DeepShift.UI
 
         private bool _visible;
 
-        // ── Cached references (found once on first show) ──────────────────────
+        // ── Cached reference (found once on first show) ───────────────────────
 
-        private ExtractionSystem   _extraction;
-        private MineTestBootstrap  _bootstrap;
+        private MineTestBootstrap _bootstrap;
 
         // ── GUI styles ────────────────────────────────────────────────────────
 
@@ -61,9 +61,8 @@ namespace DeepShift.UI
         /// <summary>Shows the choice overlay when the hoist countdown completes.</summary>
         public void OnEventRaised()
         {
-            _extraction = FindFirstObjectByType<ExtractionSystem>();
-            _bootstrap  = FindFirstObjectByType<MineTestBootstrap>();
-            _visible    = true;
+            _bootstrap = FindFirstObjectByType<MineTestBootstrap>();
+            _visible   = true;
         }
 
         // ── OnGUI ─────────────────────────────────────────────────────────────
@@ -94,7 +93,7 @@ namespace DeepShift.UI
                     "Extract to Surface", _buttonStyle))
             {
                 _visible = false;
-                _extraction?.BankOreAndSave();
+                BankOreAndSave();
                 SceneController.Instance?.EnterSurfaceCamp();
             }
 
@@ -105,6 +104,30 @@ namespace DeepShift.UI
                 _visible = false;
                 _bootstrap?.AdvanceToNextFloor();
             }
+        }
+
+        // ── Private helpers ───────────────────────────────────────────────────
+
+        /// <summary>
+        /// Sums credit value of all carried ore, adds to <see cref="EconomyManager"/>,
+        /// clears the player's inventory, and saves to disk.
+        /// </summary>
+        private void BankOreAndSave()
+        {
+            var inventory = FindFirstObjectByType<PlayerInventory>();
+            if (inventory != null)
+            {
+                int total = 0;
+                foreach (var ore in inventory.CarriedOre)
+                    if (ore != null) total += ore.creditValue;
+
+                if (total > 0)
+                    EconomyManager.Instance?.AddOreCredits(total);
+
+                inventory.ClearInventory();
+            }
+
+            EconomyManager.Instance?.SaveToJson();
         }
 
         private void BuildButtonStyle()

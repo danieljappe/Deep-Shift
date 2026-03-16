@@ -40,12 +40,7 @@ namespace DeepShift.Weapons
 
         private void Update()
         {
-            if (_rb == null) return;
-
-            // Move
-            _rb.MovePosition(_rb.position + _direction * _speed * Time.deltaTime);
-
-            // Tile collision — destroy on solid, un-destroyed tile
+            // Tile collision and lifetime checks run every frame for responsiveness.
             if (_mineGrid != null)
             {
                 Vector2Int cell = _mineGrid.WorldToGrid(transform.position);
@@ -57,10 +52,18 @@ namespace DeepShift.Weapons
                 }
             }
 
-            // Lifetime
             _elapsed += Time.deltaTime;
             if (_elapsed >= _maxLifetime)
                 Destroy(gameObject);
+        }
+
+        private void FixedUpdate()
+        {
+            // Movement applied in FixedUpdate so it stays in sync with the physics step.
+            // Calling MovePosition from Update caused speed loss when multiple Update
+            // calls ran before a single FixedUpdate (last call overrides earlier ones).
+            if (_rb == null) return;
+            _rb.MovePosition(_rb.position + _direction * _speed * Time.fixedDeltaTime);
         }
 
         private void OnTriggerEnter2D(Collider2D other)

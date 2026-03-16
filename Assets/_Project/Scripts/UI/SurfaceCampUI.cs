@@ -5,25 +5,20 @@ using DeepShift.Economy;
 namespace DeepShift.UI
 {
     /// <summary>
-    /// OnGUI surface camp screen shown between shifts.
-    /// Displays banked ore credits, outstanding debt, and a "Begin Shift" button
-    /// that raises <see cref="_onShiftStarted"/> to kick off a new mine run.
+    /// Compact corner HUD for the SurfaceCamp scene.
+    /// Shows banked ore credits and outstanding debt in the top-left corner.
     ///
-    /// Subscribes to <see cref="_onOreCreditsChanged"/> and <see cref="_onDebtChanged"/>
-    /// for live economy updates. Reads current values from <see cref="EconomyManager"/>
-    /// on Start in case events fired before this scene was loaded.
+    /// "Begin Shift" is handled by <see cref="DeepShift.SurfaceCamp.MineEntranceInteractable"/>
+    /// — the player walks up to the mine entrance and presses E.
     ///
-    /// Attach to a GameObject in the SurfaceCamp scene. Wire all event SO references
-    /// in the Inspector.
+    /// Attach to any active GameObject in the SurfaceCamp scene.
+    /// Wire <see cref="_onOreCreditsChanged"/> and <see cref="_onDebtChanged"/> in the Inspector.
     /// </summary>
     public class SurfaceCampUI : MonoBehaviour
     {
         [Header("Event Channels — Subscribe")]
         [SerializeField] private GameEventSO_Int _onOreCreditsChanged;
         [SerializeField] private GameEventSO_Int _onDebtChanged;
-
-        [Header("Event Channels — Raise")]
-        [SerializeField] private GameEventSO _onShiftStarted;
 
         // ── Cached economy state ───────────────────────────────────────────────
 
@@ -51,11 +46,9 @@ namespace DeepShift.UI
 
         // ── GUI styles ────────────────────────────────────────────────────────
 
-        private GUIStyle _titleStyle;
-        private GUIStyle _creditsStyle;
+        private GUIStyle _labelStyle;
         private GUIStyle _debtStyle;
         private GUIStyle _hintStyle;
-        private GUIStyle _buttonStyle;
 
         // ── Constructor ───────────────────────────────────────────────────────
 
@@ -77,34 +70,25 @@ namespace DeepShift.UI
                 _debt    = EconomyManager.Instance.DebtTokens;
             }
 
-            _titleStyle = new GUIStyle
+            _labelStyle = new GUIStyle
             {
-                fontSize  = 64,
+                fontSize  = 28,
                 fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter,
             };
-            _titleStyle.normal.textColor = new Color(1f, 0.65f, 0.1f); // VEKTRA orange
-
-            _creditsStyle = new GUIStyle
-            {
-                fontSize  = 42,
-                alignment = TextAnchor.MiddleCenter,
-            };
-            _creditsStyle.normal.textColor = new Color(1f, 0.85f, 0.4f);
+            _labelStyle.normal.textColor = new Color(1f, 0.75f, 0.2f); // VEKTRA orange
 
             _debtStyle = new GUIStyle
             {
-                fontSize  = 42,
-                alignment = TextAnchor.MiddleCenter,
+                fontSize  = 28,
+                fontStyle = FontStyle.Bold,
             };
-            _debtStyle.normal.textColor = new Color(0.9f, 0.25f, 0.25f);
+            _debtStyle.normal.textColor = new Color(0.9f, 0.25f, 0.25f); // red
 
             _hintStyle = new GUIStyle
             {
-                fontSize  = 28,
-                alignment = TextAnchor.MiddleCenter,
+                fontSize  = 22,
             };
-            _hintStyle.normal.textColor = new Color(0.55f, 0.55f, 0.55f);
+            _hintStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
         }
 
         private void OnEnable()
@@ -123,61 +107,20 @@ namespace DeepShift.UI
 
         private void OnGUI()
         {
-            if (_titleStyle == null) return;
+            if (_labelStyle == null) return;
 
-            if (_buttonStyle == null) BuildButtonStyle();
+            const float pad = 16f;
+            const float w   = 320f;
+            const float h   = 34f;
 
-            float sw = Screen.width;
-            float sh = Screen.height;
-            float cx = sw * 0.5f;
-            float cy = sh * 0.5f;
+            GUI.Label(new Rect(pad, pad,         w, h), $"Credits:  {_credits:N0} ¢", _labelStyle);
 
-            // ── Title ──────────────────────────────────────────────────────────
-            GUI.Label(new Rect(cx - 600f, cy - 280f, 1200f, 90f),
-                "VEKTRA MINING CORP — SURFACE OPERATIONS", _titleStyle);
-
-            // ── Divider hint ───────────────────────────────────────────────────
-            GUI.Label(new Rect(cx - 400f, cy - 170f, 800f, 40f),
-                "All extracted ore has been processed and credited to your account.",
-                _hintStyle);
-
-            // ── Credits ────────────────────────────────────────────────────────
-            GUI.Label(new Rect(cx - 400f, cy - 100f, 800f, 60f),
-                $"Ore Credits:  {_credits:N0}  ¢", _creditsStyle);
-
-            // ── Debt (only visible when non-zero) ──────────────────────────────
             if (_debt > 0)
-                GUI.Label(new Rect(cx - 400f, cy - 30f, 800f, 60f),
-                    $"Outstanding Debt:  {_debt:N0}", _debtStyle);
+                GUI.Label(new Rect(pad, pad + h, w, h), $"Debt:  {_debt:N0}", _debtStyle);
 
-            // ── Net balance line ───────────────────────────────────────────────
-            int net = _credits - _debt;
-            _hintStyle.normal.textColor = net >= 0
-                ? new Color(0.4f, 0.85f, 0.4f)
-                : new Color(0.9f, 0.25f, 0.25f);
-            GUI.Label(new Rect(cx - 400f, cy + 50f, 800f, 40f),
-                $"Net balance:  {net:N0}", _hintStyle);
-
-            // ── Begin Shift button ─────────────────────────────────────────────
-            if (GUI.Button(new Rect(cx - 210f, cy + 130f, 420f, 90f), "Begin Shift", _buttonStyle))
-                _onShiftStarted?.Raise();
-
-            // ── Placeholder vendor hint ────────────────────────────────────────
-            _hintStyle.normal.textColor = new Color(0.35f, 0.35f, 0.35f);
-            GUI.Label(new Rect(cx - 400f, cy + 240f, 800f, 40f),
-                "[ Vendors, upgrades and contracts — coming soon ]", _hintStyle);
-        }
-
-        // Called inside OnGUI so GUI.skin is valid
-        private void BuildButtonStyle()
-        {
-            _buttonStyle = new GUIStyle(GUI.skin.button)
-            {
-                fontSize  = 36,
-                fontStyle = FontStyle.Bold,
-            };
-            _buttonStyle.normal.textColor = Color.white;
-            _buttonStyle.hover.textColor  = new Color(1f, 0.65f, 0.1f);
+            // Interaction hint — rendered near the bottom of the screen
+            GUI.Label(new Rect(pad, Screen.height - 50f, 400f, 30f),
+                "Approach the mine entrance and press [E] to begin a shift.", _hintStyle);
         }
     }
 }

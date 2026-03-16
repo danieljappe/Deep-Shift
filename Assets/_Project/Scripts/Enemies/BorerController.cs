@@ -80,6 +80,9 @@ namespace DeepShift.Enemies
 
         private Rigidbody2D _rb;
 
+        // Velocity buffered in Update, consumed in FixedUpdate — keeps physics in sync.
+        private Vector2 _pendingVelocity;
+
         // Chitin shard credit value — placeholder until a proper drop table SO exists
         private const int ChitinShardCreditValue = 25;
 
@@ -124,17 +127,22 @@ namespace DeepShift.Enemies
 
         private void Update()
         {
+            _pendingVelocity = Vector2.zero;
+
             if (_state == BorerState.Aggro)
-            {
                 UpdateAggro();
-            }
             else if (_state == BorerState.DeAggro)
-            {
                 UpdateDeAggro();
-            }
 
             if (_lungeCooldownRemaining > 0f)
                 _lungeCooldownRemaining -= Time.deltaTime;
+        }
+
+        private void FixedUpdate()
+        {
+            // Apply buffered velocity. Skip during lunge — LungeRoutine drives MovePosition directly.
+            if (!_isLunging && _rb != null && _pendingVelocity != Vector2.zero)
+                _rb.MovePosition(_rb.position + _pendingVelocity * Time.fixedDeltaTime);
         }
 
         // ── Event handlers ────────────────────────────────────────────────────
@@ -341,20 +349,23 @@ namespace DeepShift.Enemies
         {
             if (_data == null) return;
 
-            MoveToward(_spawnPosition, _data.moveSpeed);
-
             if (Vector3.Distance(transform.position, _spawnPosition) < 0.1f)
             {
+                _pendingVelocity = Vector2.zero;
                 _rb.MovePosition(_spawnPosition);
                 TransitionToIdle();
+                return;
             }
+
+            MoveToward(_spawnPosition, _data.moveSpeed);
         }
 
         // ── Movement helpers ──────────────────────────────────────────────────
 
         /// <summary>
-        /// Moves the Borer toward <paramref name="target"/> at <paramref name="speed"/> units/s,
-        /// blocking per-axis against solid tiles (same sliding logic as PlayerController).
+        /// Buffers velocity toward <paramref name="target"/> at <paramref name="speed"/> units/s
+        /// into <see cref="_pendingVelocity"/> for application in <see cref="FixedUpdate"/>.
+        /// Blocks per-axis against solid tiles (same sliding logic as PlayerController).
         /// </summary>
         private void MoveToward(Vector3 target, float speed)
         {
@@ -364,7 +375,7 @@ namespace DeepShift.Enemies
             if (_mineGrid != null)
                 velocity = BlockMovement(velocity);
 
-            _rb.MovePosition(_rb.position + velocity * Time.deltaTime);
+            _pendingVelocity = velocity;
         }
 
         private Vector2 BlockMovement(Vector2 velocity)

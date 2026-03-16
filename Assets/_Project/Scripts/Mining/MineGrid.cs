@@ -159,7 +159,10 @@ namespace DeepShift.Mining
         /// </summary>
         public Vector3 GridToWorld(int x, int y)
         {
-            return transform.position + new Vector3(x * _tileSize, y * _tileSize, 0f);
+            // +0.5 centres the returned world position on the tile cell.
+            // Unity's Tilemap renders cell (x,y) with its sprite centred at (x+0.5, y+0.5)
+            // in grid-local space, so this offset keeps gameplay positions aligned with visuals.
+            return transform.position + new Vector3((x + 0.5f) * _tileSize, (y + 0.5f) * _tileSize, 0f);
         }
 
         /// <summary>
@@ -169,9 +172,11 @@ namespace DeepShift.Mining
         public Vector2Int WorldToGrid(Vector3 worldPos)
         {
             Vector3 local = worldPos - transform.position;
+            // FloorToInt correctly maps any point inside a cell to that cell's index.
+            // RoundToInt would shift the boundary half a tile causing hitbox misalignment.
             return new Vector2Int(
-                Mathf.RoundToInt(local.x / _tileSize),
-                Mathf.RoundToInt(local.y / _tileSize)
+                Mathf.FloorToInt(local.x / _tileSize),
+                Mathf.FloorToInt(local.y / _tileSize)
             );
         }
 

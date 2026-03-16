@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6904312855689059279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9064322495602166930}
+  - component: {fileID: 4083115736447933656}
+  - component: {fileID: 3252634502786429810}
+  - component: {fileID: 3684242634609764871}
+  - component: {fileID: 5674136934052653052}
+  - component: {fileID: 3657654935160495621}
+  - component: {fileID: 7754446616614224020}
+  - component: {fileID: 5417698571571717491}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9064322495602166930
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4083115736447933656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92ccc8a3e86804fc098fd415597f5d72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.PlayerController
+  _moveSpeed: 5
+  _mineGrid: {fileID: 0}
+  _interactRadius: 1.2
+  _interactableLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  _onEnemyDealDamage: {fileID: 11400000, guid: 44759cb333e424f7b8162b702f55ab72, type: 2}
+--- !u!114 &3252634502786429810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a4e92617454403b8095c650f2d3a99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.PlayerSetup
+--- !u!114 &3684242634609764871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e02bed7980a44ca89de1ac331d3f8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.DrillController
+  _chargeTime: 0.8
+  _drillDamage: 1
+  _mineGrid: {fileID: 0}
+  _onOrePickedUp: {fileID: 11400000, guid: f589e6bed3cb8409981f33a49d6a83ed, type: 2}
+--- !u!114 &5674136934052653052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b6f1c6ab2ba2453bbe817c369f492f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Mining.PlayerInventory
+--- !u!114 &3657654935160495621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 716bf85820af545f9a04a0a36ab56f05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Player.PlayerHealthSystem
+  _maxHealth: 100
+  _onPlayerHealthChanged: {fileID: 11400000, guid: 9286e32ed3c644ef39fb6500c20aae66, type: 2}
+  _onPlayerDied: {fileID: 11400000, guid: 522909d3e4546481c9723f63d913c56b, type: 2}
+  _onPlayerFloorChanged: {fileID: 11400000, guid: 22f22dac40e754eceb6f02530e2cac63, type: 2}
+  _onShiftStarted: {fileID: 11400000, guid: 7dde41aa75ef4430a83f3bf2b1b2b128, type: 2}
+--- !u!114 &7754446616614224020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049e49ac78c6d4d629b2b2e19e22ac9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Weapons.RangedWeaponController
+  _data: {fileID: 11400000, guid: c5c42231e0d4c4da8b9f5e20f8c0812a, type: 2}
+  _mineGrid: {fileID: 0}
+  _onWeaponAmmoChanged: {fileID: 11400000, guid: ddaab17f4387f4226aed6f765127cbc9, type: 2}
+  _onWeaponFired: {fileID: 11400000, guid: 725c767524bd04f899382387fd26112f, type: 2}
+--- !u!114 &5417698571571717491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904312855689059279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdd41869ac3a24f12931a04baf173c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Player.HotbarController
+  _drill: {fileID: 3684242634609764871}
+  _ranged: {fileID: 7754446616614224020}
+  _onWeaponSlotChanged: {fileID: 11400000, guid: 6e2231d60d0ee44c7b9bc737b932bd47, type: 2}
