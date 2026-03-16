@@ -1,25 +1,20 @@
 using UnityEngine;
 using DeepShift.Core;
-using DeepShift.Mining;
-using DeepShift.Player;
 
 namespace DeepShift.UI
 {
     /// <summary>
     /// Full-screen death overlay shown when the player dies.
     /// Displays the shift termination summary (ore lost, revival fee, current debt)
-    /// and a "Begin New Shift" button that resets all run state and starts a fresh run.
-    /// <para>
-    /// Activated via <see cref="Show"/>. The "Begin New Shift" button:
-    /// clears the remaining ore inventory, calls <see cref="DeepShift.Mining.MineTestBootstrap.RestartFromFloor1"/>,
-    /// resets player HP, and raises <see cref="_onShiftStarted"/>.
-    /// </para>
-    /// Attach to any active GameObject in the Mine scene. Wire <see cref="_onShiftStarted"/> in the Inspector.
+    /// and a "Return to Surface" button that raises <see cref="_onShiftEnded"/>,
+    /// causing <see cref="DeepShift.Core.SceneController"/> to load the SurfaceCamp scene.
+    /// Run state (ore, HP) is handled by the scene reload and system resets on scene entry.
+    /// Attach to any active GameObject in the Mine scene. Wire <see cref="_onShiftEnded"/> in the Inspector.
     /// </summary>
     public class DeathScreenUI : MonoBehaviour
     {
         [Header("Event Channels — Raise")]
-        [SerializeField] private GameEventSO _onShiftStarted;
+        [SerializeField] private GameEventSO _onShiftEnded;
 
         // ── State ──────────────────────────────────────────────────────────────
 
@@ -89,30 +84,19 @@ namespace DeepShift.UI
             // _buttonStyle uses GUI.skin and must be built inside OnGUI on first use
             if (_buttonStyle == null) BuildButtonStyle();
             if (GUI.Button(new Rect(cx - 247f, cy + 225f, 495f, 117f),
-                    "Begin New Shift", _buttonStyle))
-                BeginNewShift();
+                    "Return to Surface", _buttonStyle))
+                ReturnToSurface();
         }
 
         // ── Private ────────────────────────────────────────────────────────────
 
-        private void BeginNewShift()
+        private void ReturnToSurface()
         {
-            // Clear any remaining carried ore (run state does not persist between shifts)
-            var inventory = FindFirstObjectByType<PlayerInventory>();
-            inventory?.ClearInventory();
-
-            // Reset HP to full
-            var health = FindFirstObjectByType<PlayerHealthSystem>();
-            health?.ResetToFull();
-
-            // Restart the mine from Floor 1
-            var bootstrap = FindFirstObjectByType<DeepShift.Mining.MineTestBootstrap>();
-            bootstrap?.RestartFromFloor1();
-
             _isVisible = false;
 
-            // Raise ShiftStarted for any additional subscribers (ORION, future systems)
-            _onShiftStarted?.Raise();
+            // SceneController listens to ShiftComplete and loads the SurfaceCamp scene.
+            // The Mine scene is destroyed on load — run state (HP, inventory) resets automatically.
+            _onShiftEnded?.Raise();
         }
 
         private void BuildStyles()

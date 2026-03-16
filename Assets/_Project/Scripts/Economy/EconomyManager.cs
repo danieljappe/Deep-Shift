@@ -53,6 +53,7 @@ namespace DeepShift.Economy
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            LoadFromJson();
         }
 
         // ── Public mutation API ───────────────────────────────────────────────
@@ -77,30 +78,46 @@ namespace DeepShift.Economy
 
         private static string SavePath => Path.Combine(Application.persistentDataPath, "economy.json");
 
+        /// <summary>
+        /// Serialises all economy values to JSON at
+        /// <c>Application.persistentDataPath/economy.json</c>.
+        /// Called automatically after successful extraction and can be called explicitly
+        /// at any other save point (e.g. scene transition to SurfaceCamp).
+        /// TODO: encrypt / obfuscate before shipping.
+        /// </summary>
         public void SaveToJson()
         {
-            // TODO: encrypt / obfuscate before shipping
-            // SaveData data = new SaveData
-            // {
-            //     oreCredits      = _oreCredits,
-            //     debtTokens      = _debtTokens,
-            //     vektraRep       = _vektraRep,
-            //     blackMarketChips = _blackMarketChips,
-            // };
-            // File.WriteAllText(SavePath, JsonUtility.ToJson(data, prettyPrint: true));
-            Debug.Log("[EconomyManager] SaveToJson — stub");
+            SaveData data = new SaveData
+            {
+                oreCredits       = _oreCredits,
+                debtTokens       = _debtTokens,
+                vektraRep        = _vektraRep,
+                blackMarketChips = _blackMarketChips,
+            };
+            File.WriteAllText(SavePath, JsonUtility.ToJson(data, prettyPrint: true));
         }
 
+        /// <summary>
+        /// Loads economy values from JSON, if the save file exists.
+        /// Called automatically in <see cref="Awake"/> so values are restored on launch.
+        /// Raises all four currency-changed events so any HUD components initialise correctly.
+        /// </summary>
         public void LoadFromJson()
         {
-            // TODO: decrypt / validate before applying
-            // if (!File.Exists(SavePath)) return;
-            // SaveData data = JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));
-            // _oreCredits       = data.oreCredits;
-            // _debtTokens       = data.debtTokens;
-            // _vektraRep        = data.vektraRep;
-            // _blackMarketChips = data.blackMarketChips;
-            Debug.Log("[EconomyManager] LoadFromJson — stub");
+            if (!File.Exists(SavePath)) return;
+
+            SaveData data = JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));
+
+            // Assign backing fields directly then raise events once each
+            _oreCredits       = data.oreCredits;
+            _debtTokens       = data.debtTokens;
+            _vektraRep        = data.vektraRep;
+            _blackMarketChips = data.blackMarketChips;
+
+            _onOreCreditsChanged?.Raise(_oreCredits);
+            _onDebtChanged?.Raise(_debtTokens);
+            _onVektraRepChanged?.Raise(_vektraRep);
+            _onBlackMarketChipsChanged?.Raise(_blackMarketChips);
         }
     }
 }

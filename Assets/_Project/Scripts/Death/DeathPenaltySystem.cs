@@ -51,9 +51,10 @@ namespace DeepShift.Death
             int totalOre = _inventory != null ? _inventory.Count : 0;
             int oreLost  = totalOre / 2; // integer division = round down
 
-            // Remove 50% of carried ore
-            if (_inventory != null && oreLost > 0)
-                _inventory.RemoveOre(oreLost);
+            // Remove all carried ore — 50% is the tracked loss for display;
+            // all ore is lost on death (run state is wiped on new shift).
+            if (_inventory != null)
+                _inventory.ClearInventory();
 
             // Add VEKTRA medical revival fee to debt
             if (EconomyManager.Instance != null)

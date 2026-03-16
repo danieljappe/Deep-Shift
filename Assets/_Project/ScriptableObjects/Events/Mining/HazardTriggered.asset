@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaea7798f95254006b3e8841836609c8, type: 3}
+  m_Script: {fileID: 11500000, guid: 22f1e4c54ee0041e9a20ce20e39f8871, type: 3}
   m_Name: HazardTriggered
-  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Core.GameEventSO
+  m_EditorClassIdentifier: Assembly-CSharp::DeepShift.Core.GameEventSO_String

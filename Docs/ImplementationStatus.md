@@ -1,6 +1,6 @@
 # Deep Shift — Implementation Status
 
-Last updated: 2026-03-11 (hotbar + ranged weapon + Borer feedback pass)
+Last updated: 2026-03-15 (Phase 5 — surface camp, scene orchestration)
 
 ---
 
@@ -12,7 +12,7 @@ Last updated: 2026-03-11 (hotbar + ranged weapon + Borer feedback pass)
 | Folder structure | ✅ Done | Assets/_Project layout in place |
 | ScriptableObject event bus | ✅ Done | GameEventSO, GameEventSOTyped<T>, IGameEventListener |
 | Core event SO assets | ✅ Done | Generated via EventAssetGenerator editor tool |
-| GameManager + Bootstrap | ⬜ Stubbed | GameState enum exists; ChangeState not wired to scenes |
+| GameManager + Bootstrap | ✅ Done | SceneController drives all transitions; GameManager tracks state |
 | EconomyManager | ⬜ Stubbed | |
 | ORIONDialogueManager | ⬜ Stubbed | |
 | Grid tilemap + tile destruction | ✅ Done | MineGrid, CA cave gen, RoomPlacer, HitTile |
@@ -98,12 +98,16 @@ Last updated: 2026-03-11 (hotbar + ranged weapon + Borer feedback pass)
 
 | Feature | Status | Notes |
 |---|---|---|
-| Ore credits tracking | ⬜ Planned | EconomyManager stub exists |
-| Debt tokens | ⬜ Planned | Accrued on death |
-| VEKTRA Rep | ⬜ Planned | |
-| Black Market Chips | ⬜ Planned | |
+| Ore credits tracking | ✅ Done | ExtractionSystem: HoistExtracted → sum inventory → AddOreCredits → ClearInventory |
+| Debt tokens | ✅ Done | DeathPenaltySystem adds _revivalFee debt on PlayerDied |
+| Economy save/load | ✅ Done | EconomyManager.SaveToJson/LoadFromJson (JsonUtility, persistentDataPath) |
+| Economy HUD | ✅ Done | EconomyHUD: credits (orange) + debt (red) top-right; event-driven |
+| Death clears inventory | ✅ Done | DeathPenaltySystem.ClearInventory() — all ore lost on death per design |
+| VEKTRA Rep | ⬜ Planned | EconomyManager.ChangeVektraRep exists; no sources yet |
+| Black Market Chips | ⬜ Planned | EconomyManager.AddBlackMarketChips exists; no sources yet |
 | Meta-upgrade tree | ⬜ Planned | |
-| SurfaceCamp scene | ⬜ Planned | |
+| SurfaceCamp scene | ✅ Done | SurfaceCampUI: credits, debt, net balance, Begin Shift button |
+| Scene orchestration | ✅ Done | SceneController: Bootstrap→SurfaceCamp→Mine→SurfaceCamp loop |
 | Vendors | ⬜ Planned | |
 
 ---

@@ -16,7 +16,7 @@ namespace DeepShift.Mining
     /// Subscribes to <c>HoistExtracted</c> to trigger in-place floor regeneration without
     /// reloading the scene.
     /// </summary>
-    public class MineTestBootstrap : MonoBehaviour, IGameEventListener
+    public class MineTestBootstrap : MonoBehaviour
     {
         [Header("Grid")]
         [SerializeField] private MineGrid   _mineGrid;
@@ -55,10 +55,6 @@ namespace DeepShift.Mining
         /// <summary>Spawns enemies after each floor is generated using the threat budget system.</summary>
         [SerializeField] private EnemySpawner _enemySpawner;
 
-        [Header("Event Channels — Subscribe")]
-        [SerializeField] private GameEventSO _onHoistExtracted;
-        [SerializeField] private GameEventSO _onShiftStarted;
-
         [Header("Event Channels — Raise")]
         [SerializeField] private GameEventSO_Int _onPlayerFloorChanged;
 
@@ -70,35 +66,13 @@ namespace DeepShift.Mining
         /// <summary>Tracks terminal/marker GameObjects spawned per floor so they can be cleared on regeneration.</summary>
         private readonly List<GameObject> _spawnedTerminals = new();
 
-        // Separate IGameEventListener for ShiftStarted — avoids interface collision with OnEventRaised()
-        private RestartListener _restartListener;
-
         // ── Lifecycle ──────────────────────────────────────────────────────────
-
-        private void Awake() => _restartListener = new RestartListener(this);
-
-        private void OnEnable()
-        {
-            _onHoistExtracted?.RegisterListener(this);
-            _onShiftStarted?.RegisterListener(_restartListener);
-        }
-
-        private void OnDisable()
-        {
-            _onHoistExtracted?.UnregisterListener(this);
-            _onShiftStarted?.UnregisterListener(_restartListener);
-        }
 
         private void Start()
         {
             if (!ValidateReferences()) return;
-            GenerateFloor();
+            DoFloorTransition();
         }
-
-        // ── IGameEventListener ─────────────────────────────────────────────────
-
-        /// <summary>Called when HoistExtracted fires — regenerates the floor in place.</summary>
-        public void OnEventRaised() => RegenerateFloor();
 
         // ── Public API ─────────────────────────────────────────────────────────
 
@@ -111,29 +85,14 @@ namespace DeepShift.Mining
             return _mineGrid.GridToWorld(_placementResult.spawnCentre.x, _placementResult.spawnCentre.y);
         }
 
-        // ── Floor generation ───────────────────────────────────────────────────
-
         /// <summary>
-        /// Clears all floor-scoped objects, increments the floor depth, regenerates the cave
-        /// and rooms, and teleports the player to the new spawn.
-        /// Called when <see cref="_onHoistExtracted"/> fires.
+        /// Clears all floor-scoped objects, increments floor depth, and regenerates the cave.
+        /// Called by <see cref="DeepShift.UI.HoistChoiceUI"/> when the player chooses to go deeper.
         /// </summary>
-        private void RegenerateFloor()
+        public void AdvanceToNextFloor()
         {
             CleanupFloorObjects();
             _floorDepth++;
-            DoFloorTransition();
-        }
-
-        /// <summary>
-        /// Clears all floor-scoped objects, resets the floor depth to 1, regenerates the cave
-        /// and rooms, and teleports the player to the spawn.
-        /// Called when <see cref="_onShiftStarted"/> fires (i.e. player clicked "Begin New Shift").
-        /// </summary>
-        public void RestartFromFloor1()
-        {
-            CleanupFloorObjects();
-            _floorDepth = 1;
             DoFloorTransition();
         }
 
@@ -166,9 +125,7 @@ namespace DeepShift.Mining
                 player.TeleportTo(GetSpawnPosition());
 
             _onPlayerFloorChanged?.Raise(_floorDepth);
-            Debug.Log($"[MineTestBootstrap] DESCENDING — Floor {_floorDepth}");
-
-            // TODO: When the run ends (death or surface extraction), transition to Surface Camp.
+            Debug.Log($"[MineTestBootstrap] Floor {_floorDepth} ready.");
         }
 
         /// <summary>
@@ -409,17 +366,5 @@ namespace DeepShift.Mining
         private static bool IsNearSpawn(int x, int y, Vector2Int spawn) =>
             Mathf.Abs(x - spawn.x) <= 1 && Mathf.Abs(y - spawn.y) <= 1;
 
-        // ── Inner listener ─────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Bridges the ShiftStarted event to <see cref="RestartFromFloor1"/> without
-        /// conflicting with the IGameEventListener implementation used by HoistExtracted.
-        /// </summary>
-        private sealed class RestartListener : IGameEventListener
-        {
-            private readonly MineTestBootstrap _owner;
-            public RestartListener(MineTestBootstrap owner) => _owner = owner;
-            public void OnEventRaised() => _owner.RestartFromFloor1();
-        }
     }
 }
